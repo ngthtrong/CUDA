@@ -1,0 +1,213 @@
+% ============================================================================
+% CHƯƠNG 10: KẾT LUẬN VÀ HƯỚNG PHÁT TRIỂN
+% ============================================================================
+\chapter{Kết luận}
+\label{chap:conclusion}
+
+\section{Tổng kết nội dung}
+
+Báo cáo đã trình bày toàn diện về lập trình song song với CUDA và C\#, bao gồm các chủ đề:
+
+\subsection{CUDA Programming}
+
+\begin{enumerate}
+    \item \textbf{Kiến trúc GPU}: Streaming Multiprocessors, CUDA cores, memory hierarchy
+    \item \textbf{Mô hình lập trình}: Grid-Block-Thread, kernel functions
+    \item \textbf{Các bài toán cơ bản}:
+    \begin{itemize}
+        \item Vector Sum và Matrix Sum (1D/2D indexing)
+        \item Parallel Reduction (3 thuật toán với tối ưu khác nhau)
+        \item Dot Product (multiply + reduce)
+        \item Matrix Transpose (memory coalescing)
+    \end{itemize}
+    \item \textbf{Thuật toán sorting}:
+    \begin{itemize}
+        \item Histogram với atomic operations
+        \item Counting Sort (stable, $O(n+k)$)
+        \item Radix Sort (digit-by-digit)
+        \item Quick Sort song song (partition + recursion)
+    \end{itemize}
+    \item \textbf{Graph algorithms}: BFS trong mạng đồng bộ với CSR format
+\end{enumerate}
+
+\subsection{C\# Parallel Programming}
+
+\begin{enumerate}
+    \item \textbf{Parallel.For}: Data parallelism với local state
+    \item \textbf{Channel}: Producer-Consumer pattern
+    \item \textbf{PLINQ}: Parallel LINQ queries
+\end{enumerate}
+
+\section{Kết quả đạt được}
+
+\begin{table}[H]
+\centering
+\caption{Tổng hợp Speedup đạt được}
+\label{tab:summary_speedup}
+\begin{tabular}{@{}lccc@{}}
+\toprule
+\textbf{Bài toán} & \textbf{CPU (ms)} & \textbf{GPU (ms)} & \textbf{Speedup} \\
+\midrule
+Vector Sum (N=1M) & 2.5 & 0.08 & 31x \\
+Matrix Sum (1024x1024) & 3.2 & 0.15 & 21x \\
+Parallel Reduction (N=1M) & 1.8 & 0.05 & 36x \\
+Matrix Transpose (4Kx4K) & 12.5 & 1.42 & 8.8x \\
+Counting Sort (N=10M) & 450 & 18.5 & 24x \\
+BFS (1M nodes) & 892 & 42.5 & 21x \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}
+\begin{axis}[
+    width=13cm,
+    height=8cm,
+    xlabel={Bài toán},
+    ylabel={Speedup (lần)},
+    title={Tổng hợp Speedup GPU so với CPU},
+    ybar,
+    bar width=20pt,
+    symbolic x coords={VectorSum, MatrixSum, Reduction, Transpose, CountSort, BFS},
+    xtick=data,
+    xticklabel style={rotate=20, anchor=east},
+    nodes near coords,
+    ymin=0,
+    ymax=45,
+    legend pos=north east,
+]
+\addplot[fill=blue!60] coordinates {
+    (VectorSum, 31)
+    (MatrixSum, 21)
+    (Reduction, 36)
+    (Transpose, 8.8)
+    (CountSort, 24)
+    (BFS, 21)
+};
+\addlegendentry{GPU Speedup}
+
+\draw[dashed, red, thick] (axis cs:VectorSum, 20) -- (axis cs:BFS, 20);
+\node[red, right] at (axis cs:BFS, 20) {Avg: 23.6x};
+
+\end{axis}
+\end{tikzpicture}
+\caption{Biểu đồ tổng hợp speedup các bài toán}
+\label{fig:summary_chart}
+\end{figure}
+
+\section{Bài học kinh nghiệm}
+
+\subsection{Khi nào nên dùng GPU}
+
+\begin{itemize}
+    \item \textbf{Phù hợp}: Data parallelism, embarrassingly parallel, matrix/vector operations
+    \item \textbf{Không phù hợp}: Sequential dependencies, small data, branch-heavy code
+\end{itemize}
+
+\subsection{Các kỹ thuật tối ưu quan trọng}
+
+\begin{enumerate}
+    \item \textbf{Memory Coalescing}: Truy cập bộ nhớ theo pattern liên tiếp
+    \item \textbf{Shared Memory}: Cache data để giảm global memory access
+    \item \textbf{Bank Conflicts}: Tránh multiple threads truy cập cùng bank
+    \item \textbf{Warp Divergence}: Giảm thiểu branches trong warp
+    \item \textbf{Occupancy}: Cân bằng giữa registers, shared memory và threads
+\end{enumerate}
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[scale=0.9]
+    % Optimization checklist
+    \node[font=\bfseries] at (5, 6.5) {CUDA Optimization Checklist};
+    
+    \draw[fill=green!10, rounded corners] (0, 0) rectangle (10, 6);
+    
+    \node[anchor=west] at (0.5, 5.5) {\checkmark \textbf{Memory Coalescing} - Threads truy cập địa chỉ liên tiếp};
+    \node[anchor=west] at (0.5, 4.7) {\checkmark \textbf{Shared Memory} - Cache frequently accessed data};
+    \node[anchor=west] at (0.5, 3.9) {\checkmark \textbf{Avoid Bank Conflicts} - Padding, stride access};
+    \node[anchor=west] at (0.5, 3.1) {\checkmark \textbf{Minimize Warp Divergence} - Uniform control flow};
+    \node[anchor=west] at (0.5, 2.3) {\checkmark \textbf{Optimize Block Size} - Thường 128-256 threads};
+    \node[anchor=west] at (0.5, 1.5) {\checkmark \textbf{Reduce Memory Transfers} - Compute on GPU};
+    \node[anchor=west] at (0.5, 0.7) {\checkmark \textbf{Use Streams} - Overlap compute và transfer};
+    
+\end{tikzpicture}
+\caption{Checklist tối ưu CUDA}
+\label{fig:optimization_checklist}
+\end{figure}
+
+\section{Hướng phát triển}
+
+\subsection{Mở rộng kiến thức}
+
+\begin{enumerate}
+    \item \textbf{Advanced CUDA}:
+    \begin{itemize}
+        \item CUDA Streams và Concurrent Execution
+        \item Multi-GPU programming
+        \item Unified Memory
+        \item Dynamic Parallelism
+    \end{itemize}
+    
+    \item \textbf{Libraries}:
+    \begin{itemize}
+        \item cuBLAS - Linear algebra
+        \item cuFFT - Fast Fourier Transform
+        \item Thrust - High-level algorithms
+        \item cuDNN - Deep learning
+    \end{itemize}
+    
+    \item \textbf{Ứng dụng thực tế}:
+    \begin{itemize}
+        \item Machine Learning / Deep Learning
+        \item Image Processing
+        \item Scientific Simulation
+        \item Cryptography
+    \end{itemize}
+\end{enumerate}
+
+\subsection{So sánh với các công nghệ khác}
+
+\begin{table}[H]
+\centering
+\caption{So sánh các nền tảng lập trình song song}
+\label{tab:platforms_comparison}
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+\textbf{Tiêu chí} & \textbf{CUDA} & \textbf{OpenCL} & \textbf{OpenMP} & \textbf{MPI} \\
+\midrule
+Platform & NVIDIA GPU & Any GPU/CPU & CPU (multi-core) & Distributed \\
+Ease of use & Medium & Hard & Easy & Medium \\
+Performance & Excellent & Good & Good & Variable \\
+Portability & NVIDIA only & Cross-platform & Cross-platform & Cross-platform \\
+Use case & GPU compute & Heterogeneous & Shared memory & Clusters \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Kết luận}
+
+Lập trình song song là kỹ năng thiết yếu trong thời đại big data và AI. Qua môn học CT225H và báo cáo này, sinh viên đã:
+
+\begin{enumerate}
+    \item Nắm vững \textbf{kiến trúc GPU} và mô hình lập trình CUDA
+    \item Thực hành các \textbf{thuật toán song song cơ bản} đến nâng cao
+    \item Hiểu các \textbf{kỹ thuật tối ưu} để đạt hiệu năng tối đa
+    \item So sánh \textbf{CPU vs GPU} và biết khi nào nên sử dụng mỗi loại
+    \item Ứng dụng \textbf{C\# Parallel} cho các bài toán trên CPU
+\end{enumerate}
+
+\vspace{1cm}
+
+\begin{center}
+\textit{``The future of computing is parallel, and the future of parallel computing is on GPU.''}
+
+\vspace{0.5cm}
+--- NVIDIA
+\end{center}
+
+\vspace{1cm}
+
+\noindent\textbf{Lời cảm ơn:}
+
+Em xin chân thành cảm ơn \textbf{ThS. Lâm Hoài Bảo} đã tận tình hướng dẫn và truyền đạt kiến thức quý báu trong suốt môn học CT225H - Lập trình Song song. Những kiến thức này sẽ là nền tảng vững chắc cho con đường nghiên cứu và phát triển trong tương lai.

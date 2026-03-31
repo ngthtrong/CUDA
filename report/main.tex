@@ -1,0 +1,336 @@
+% ============================================================================
+% BÁO CÁO CUỐI KHÓA - MÔN LẬP TRÌNH SONG SONG CT225H
+% Sinh viên: Nguyễn Thanh Trọng - B2305615
+% ============================================================================
+\documentclass[12pt,a4paper]{report}
+
+% ============================================================================
+% PACKAGES
+% ============================================================================
+\usepackage[utf8]{inputenc}
+\usepackage[vietnamese]{babel}
+\usepackage{amsmath,amsfonts,amssymb}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{longtable}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{hyperref}
+\usepackage{geometry}
+\usepackage{fancyhdr}
+\usepackage{tocloft}
+\usepackage{titlesec}
+\usepackage{enumitem}
+\usepackage{float}
+\usepackage{wrapfig}
+
+% TikZ libraries
+\usetikzlibrary{shapes,arrows,positioning,calc,fit,backgrounds,shadows,decorations.pathreplacing}
+\pgfplotsset{compat=1.18}
+
+% ============================================================================
+% PAGE SETUP
+% ============================================================================
+\geometry{
+    left=3cm,
+    right=2cm,
+    top=2.5cm,
+    bottom=2.5cm
+}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\leftmark}
+\fancyhead[R]{CT225H - Lập trình Song song}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.4pt}
+
+% ============================================================================
+% CODE LISTING STYLE
+% ============================================================================
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+\definecolor{cudablue}{RGB}{0,102,204}
+\definecolor{cudagreen}{RGB}{118,185,0}
+
+\lstdefinestyle{cudastyle}{
+    backgroundcolor=\color{backcolour},
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{cudablue}\bfseries,
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,
+    breaklines=true,
+    captionpos=b,
+    keepspaces=true,
+    numbers=left,
+    numbersep=5pt,
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+    tabsize=4,
+    frame=single,
+    rulecolor=\color{black},
+    language=C++,
+    morekeywords={__global__,__device__,__host__,__shared__,__constant__,
+                  dim3,cudaMalloc,cudaFree,cudaMemcpy,cudaMemcpyHostToDevice,
+                  cudaMemcpyDeviceToHost,cudaDeviceSynchronize,cudaEvent_t,
+                  cudaEventCreate,cudaEventRecord,cudaEventSynchronize,
+                  cudaEventElapsedTime,atomicAdd,atomicCAS,__syncthreads,
+                  blockIdx,blockDim,threadIdx,gridDim}
+}
+
+\lstdefinestyle{csharpstyle}{
+    backgroundcolor=\color{backcolour},
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{blue}\bfseries,
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,
+    breaklines=true,
+    captionpos=b,
+    keepspaces=true,
+    numbers=left,
+    numbersep=5pt,
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+    tabsize=4,
+    frame=single,
+    language=[Sharp]C,
+    morekeywords={async,await,var,Task,Parallel,Channel,Interlocked}
+}
+
+\lstset{style=cudastyle}
+
+% ============================================================================
+% CUSTOM COMMANDS
+% ============================================================================
+\newcommand{\code}[1]{\texttt{\small #1}}
+\newcommand{\cuda}{\textsc{cuda}}
+\newcommand{\gpu}{\textsc{gpu}}
+\newcommand{\cpu}{\textsc{cpu}}
+
+% ============================================================================
+% TITLE FORMATTING
+% ============================================================================
+\titleformat{\chapter}[display]
+    {\normalfont\huge\bfseries}{\chaptertitlename\ \thechapter}{20pt}{\Huge}
+\titlespacing*{\chapter}{0pt}{0pt}{40pt}
+
+% ============================================================================
+% BEGIN DOCUMENT
+% ============================================================================
+\begin{document}
+
+% ============================================================================
+% TITLE PAGE
+% ============================================================================
+\begin{titlepage}
+    \begin{center}
+        \vspace*{0.5cm}
+        
+        \textbf{\Large TRƯỜNG ĐẠI HỌC CẦN THƠ}\\[0.3cm]
+        \textbf{\large KHOA CÔNG NGHỆ THÔNG TIN VÀ TRUYỀN THÔNG}\\[0.2cm]
+        \textbf{\large BỘ MÔN KHOA HỌC MÁY TÍNH}
+        
+        \vspace{1cm}
+        
+        \begin{tikzpicture}
+            % CTU Logo placeholder - GPU/CUDA themed design
+            \draw[thick, cudablue] (0,0) circle (2cm);
+            \foreach \i in {0,30,...,330} {
+                \draw[cudagreen, thick] (\i:1.5cm) -- (\i:2cm);
+            }
+            \node[cudablue, font=\bfseries\Large] at (0,0) {CUDA};
+        \end{tikzpicture}
+        
+        \vspace{1.5cm}
+        
+        \rule{\linewidth}{0.5mm}\\[0.4cm]
+        {\Huge\bfseries BÁO CÁO CUỐI KHÓA}\\[0.2cm]
+        {\LARGE\bfseries Môn học: LẬP TRÌNH SONG SONG}\\[0.1cm]
+        {\large Mã môn: CT225H}\\
+        \rule{\linewidth}{0.5mm}
+        
+        \vspace{1.5cm}
+        
+        \begin{tikzpicture}
+            \node[draw, rounded corners, fill=cudablue!10, 
+                  minimum width=12cm, minimum height=3cm,
+                  text width=11cm, align=center] {
+                \Large\bfseries Lập trình Song song với CUDA\\[0.3cm]
+                \large Parallel Programming with NVIDIA CUDA\\[0.2cm]
+                \normalsize Từ cơ bản đến nâng cao
+            };
+        \end{tikzpicture}
+        
+        \vspace{2cm}
+        
+        \begin{minipage}{0.45\textwidth}
+            \begin{flushleft}
+                \textbf{Giảng viên hướng dẫn:}\\
+                ThS. Lâm Hoài Bảo\\
+                Bộ môn KHMT - CNTT\&TT
+            \end{flushleft}
+        \end{minipage}
+        \hfill
+        \begin{minipage}{0.45\textwidth}
+            \begin{flushright}
+                \textbf{Sinh viên thực hiện:}\\
+                Nguyễn Thanh Trọng\\
+                MSSV: B2305615
+            \end{flushright}
+        \end{minipage}
+        
+        \vfill
+        
+        {\large Cần Thơ, Năm 2026}
+        
+    \end{center}
+\end{titlepage}
+
+% ============================================================================
+% BLANK PAGE
+% ============================================================================
+\newpage
+\thispagestyle{empty}
+\mbox{}
+\newpage
+
+% ============================================================================
+% LỜI CẢM ƠN
+% ============================================================================
+\chapter*{Lời cảm ơn}
+\addcontentsline{toc}{chapter}{Lời cảm ơn}
+
+Trước tiên, em xin gửi lời cảm ơn chân thành và sâu sắc nhất đến \textbf{Thầy Lâm Hoài Bảo} - giảng viên bộ môn Khoa học Máy tính, Khoa Công nghệ Thông tin và Truyền thông, Trường Đại học Cần Thơ. Thầy đã tận tình giảng dạy, hướng dẫn và truyền đạt những kiến thức quý báu về lập trình song song trong suốt học kỳ vừa qua.
+
+Em cũng xin cảm ơn \textbf{Khoa Công nghệ Thông tin và Truyền thông} đã tạo điều kiện thuận lợi về cơ sở vật chất và môi trường học tập, giúp em có thể tiếp cận và thực hành với các công nghệ hiện đại.
+
+Đặc biệt, em xin gửi lời cảm ơn đến nền tảng \textbf{Google Colab} đã cung cấp môi trường GPU miễn phí, giúp sinh viên như em có thể học tập và thực hành CUDA mà không cần đầu tư phần cứng đắt tiền.
+
+Trong quá trình học tập và hoàn thành báo cáo, do kiến thức còn hạn chế nên không tránh khỏi những thiếu sót. Em rất mong nhận được sự góp ý từ Thầy và các bạn để báo cáo được hoàn thiện hơn.
+
+\vspace{1cm}
+\begin{flushright}
+    \textit{Cần Thơ, tháng 3 năm 2026}\\[0.5cm]
+    \textbf{Sinh viên}\\[1cm]
+    Nguyễn Thanh Trọng
+\end{flushright}
+
+% ============================================================================
+% MỤC LỤC
+% ============================================================================
+\tableofcontents
+\newpage
+
+% ============================================================================
+% DANH MỤC HÌNH ẢNH
+% ============================================================================
+\listoffigures
+\addcontentsline{toc}{chapter}{Danh mục hình ảnh}
+\newpage
+
+% ============================================================================
+% DANH MỤC BẢNG
+% ============================================================================
+\listoftables
+\addcontentsline{toc}{chapter}{Danh mục bảng}
+\newpage
+
+% ============================================================================
+% DANH MỤC TỪ VIẾT TẮT
+% ============================================================================
+\chapter*{Danh mục từ viết tắt}
+\addcontentsline{toc}{chapter}{Danh mục từ viết tắt}
+
+\begin{longtable}{@{}ll@{}}
+\toprule
+\textbf{Từ viết tắt} & \textbf{Giải thích} \\
+\midrule
+\endhead
+CUDA & Compute Unified Device Architecture \\
+GPU & Graphics Processing Unit \\
+CPU & Central Processing Unit \\
+HPC & High Performance Computing \\
+GPGPU & General-Purpose computing on GPU \\
+SM & Streaming Multiprocessor \\
+SP & Streaming Processor (CUDA Core) \\
+SIMT & Single Instruction Multiple Thread \\
+TPL & Task Parallel Library \\
+PLINQ & Parallel LINQ \\
+CSR & Compressed Sparse Row \\
+BFS & Breadth-First Search \\
+DAG & Directed Acyclic Graph \\
+LSD & Least Significant Digit \\
+MSD & Most Significant Digit \\
+H2D & Host to Device \\
+D2H & Device to Host \\
+\bottomrule
+\end{longtable}
+
+% ============================================================================
+% INCLUDE CHAPTERS
+% ============================================================================
+\input{chapters/chapter01_introduction}
+\input{chapters/chapter02_cuda_basics}
+\input{chapters/chapter03_vector_matrix}
+\input{chapters/chapter04_reduction}
+\input{chapters/chapter05_dot_transpose}
+\input{chapters/chapter06_sorting}
+\input{chapters/chapter07_quicksort}
+\input{chapters/chapter08_bfs}
+\input{chapters/chapter09_csharp}
+\input{chapters/chapter10_conclusion}
+
+% ============================================================================
+% TÀI LIỆU THAM KHẢO
+% ============================================================================
+\chapter*{Tài liệu tham khảo}
+\addcontentsline{toc}{chapter}{Tài liệu tham khảo}
+
+\begin{enumerate}[label={[\arabic*]}]
+    \item NVIDIA Corporation. \textit{CUDA C++ Programming Guide}. Version 12.0, 2023. \\
+          \url{https://docs.nvidia.com/cuda/cuda-c-programming-guide/}
+    
+    \item Sanders, J. \& Kandrot, E. \textit{CUDA by Example: An Introduction to General-Purpose GPU Programming}. Addison-Wesley, 2010.
+    
+    \item Kirk, D. B. \& Hwu, W. W. \textit{Programming Massively Parallel Processors: A Hands-on Approach}. 3rd Edition, Morgan Kaufmann, 2016.
+    
+    \item Microsoft. \textit{Task Parallel Library (TPL) Documentation}. \\
+          \url{https://docs.microsoft.com/en-us/dotnet/standard/parallel-programming/}
+    
+    \item Viblo. \textit{Lập trình song song - CUDA cơ bản}. \\
+          \url{https://viblo.asia/p/lap-trinh-song-song-bai-3-hello-world-cuda-c-0gdJzxbkVz5}
+    
+    \item NVIDIA Developer Forums. \textit{Running CUDA on Google Colab}. \\
+          \url{https://forums.developer.nvidia.com/t/running-c-and-cuda-in-google-colab/237108}
+    
+    \item Cormen, T. H., Leiserson, C. E., Rivest, R. L., \& Stein, C. \textit{Introduction to Algorithms}. 3rd Edition, MIT Press, 2009.
+    
+    \item Harris, M. \textit{Optimizing Parallel Reduction in CUDA}. NVIDIA Developer Technology, 2007.
+    
+    \item Blelloch, G. E. \textit{Prefix Sums and Their Applications}. Technical Report CMU-CS-90-190, Carnegie Mellon University, 1990.
+    
+    \item Satish, N., Harris, M., \& Garland, M. \textit{Designing Efficient Sorting Algorithms for Manycore GPUs}. IEEE IPDPS, 2009.
+\end{enumerate}
+
+% ============================================================================
+% PHỤ LỤC
+% ============================================================================
+\input{chapters/appendix}
+
+\end{document}

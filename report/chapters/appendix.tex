@@ -1,0 +1,417 @@
+% ============================================================================
+% PHỤ LỤC: MÃ NGUỒN ĐẦY ĐỦ
+% ============================================================================
+\appendix
+\chapter{Mã nguồn đầy đủ}
+\label{chap:appendix}
+
+\section{CUDA Kernels}
+
+\subsection{Vector Sum (vecto.cu)}
+
+\begin{lstlisting}[caption={Vector Sum Kernel hoàn chỉnh}]
+#include <cuda_runtime.h>
+#include <stdio.h>
+
+#define N 1000000
+#define BLOCK_SIZE 256
+
+__global__ void vectorSum(float *a, float *b, float *c, int n) {
+    int idx = blockIdx.x * blockDim.x + threadIdx.x;
+    if (idx < n) {
+        c[idx] = a[idx] + b[idx];
+    }
+}
+
+int main() {
+    float *h_a, *h_b, *h_c;
+    float *d_a, *d_b, *d_c;
+    
+    // Allocate host memory
+    h_a = (float*)malloc(N * sizeof(float));
+    h_b = (float*)malloc(N * sizeof(float));
+    h_c = (float*)malloc(N * sizeof(float));
+    
+    // Initialize
+    for (int i = 0; i < N; i++) {
+        h_a[i] = 1.0f;
+        h_b[i] = 2.0f;
+    }
+    
+    // Allocate device memory
+    cudaMalloc(&d_a, N * sizeof(float));
+    cudaMalloc(&d_b, N * sizeof(float));
+    cudaMalloc(&d_c, N * sizeof(float));
+    
+    // Copy to device
+    cudaMemcpy(d_a, h_a, N * sizeof(float), cudaMemcpyHostToDevice);
+    cudaMemcpy(d_b, h_b, N * sizeof(float), cudaMemcpyHostToDevice);
+    
+    // Launch kernel
+    int gridSize = (N + BLOCK_SIZE - 1) / BLOCK_SIZE;
+    vectorSum<<<gridSize, BLOCK_SIZE>>>(d_a, d_b, d_c, N);
+    
+    // Copy result back
+    cudaMemcpy(h_c, d_c, N * sizeof(float), cudaMemcpyDeviceToHost);
+    
+    // Verify
+    printf("c[0] = %f, c[N-1] = %f\n", h_c[0], h_c[N-1]);
+    
+    // Cleanup
+    free(h_a); free(h_b); free(h_c);
+    cudaFree(d_a); cudaFree(d_b); cudaFree(d_c);
+    
+    return 0;
+}
+\end{lstlisting}
+
+\subsection{Parallel Reduction (parallel\_reduction.cu)}
+
+\begin{lstlisting}[caption={Parallel Reduction - 3 Methods}]
+#include <cuda_runtime.h>
+#include <stdio.h>
+
+#define BLOCK_SIZE 256
+
+// Method 1: Neighboring pairs (divergent warps)
+__global__ void reduceNeighbors(int *input, int *output, int n) {
+    __shared__ int sdata[BLOCK_SIZE];
+    
+    int tid = threadIdx.x;
+    int idx = blockIdx.x * blockDim.x + threadIdx.x;
+    
+    sdata[tid] = (idx < n) ? input[idx] : 0;
+    __syncthreads();
+    
+    for (int stride = 1; stride < blockDim.x; stride *= 2) {
+        if (tid % (2 * stride) == 0) {
+            sdata[tid] += sdata[tid + stride];
+        }
+        __syncthreads();
+    }
+    
+    if (tid == 0) output[blockIdx.x] = sdata[0];
+}
+
+// Method 2: Improved - sequential addressing
+__global__ void reduceNeighbors2(int *input, int *output, int n) {
+    __shared__ int sdata[BLOCK_SIZE];
+    
+    int tid = threadIdx.x;
+    int idx = blockIdx.x * blockDim.x + threadIdx.x;
+    
+    sdata[tid] = (idx < n) ? input[idx] : 0;
+    __syncthreads();
+    
+    for (int stride = 1; stride < blockDim.x; stride *= 2) {
+        int index = 2 * stride * tid;
+        if (index < blockDim.x) {
+            sdata[index] += sdata[index + stride];
+        }
+        __syncthreads();
+    }
+    
+    if (tid == 0) output[blockIdx.x] = sdata[0];
+}
+
+// Method 3: Interleaved - no bank conflicts
+__global__ void reduceInterleaved(int *input, int *output, int n) {
+    __shared__ int sdata[BLOCK_SIZE];
+    
+    int tid = threadIdx.x;
+    int idx = blockIdx.x * blockDim.x + threadIdx.x;
+    
+    sdata[tid] = (idx < n) ? input[idx] : 0;
+    __syncthreads();
+    
+    for (int stride = blockDim.x / 2; stride > 0; stride >>= 1) {
+        if (tid < stride) {
+            sdata[tid] += sdata[tid + stride];
+        }
+        __syncthreads();
+    }
+    
+    if (tid == 0) output[blockIdx.x] = sdata[0];
+}
+\end{lstlisting}
+
+\subsection{Matrix Transpose}
+
+\begin{lstlisting}[caption={Matrix Transpose với Shared Memory}]
+#define TILE_DIM 32
+
+// Naive implementation
+__global__ void transposeNaive(float *in, float *out, int rows, int cols) {
+    int ix = blockIdx.x * blockDim.x + threadIdx.x;
+    int iy = blockIdx.y * blockDim.y + threadIdx.y;
+    
+    if (ix < cols && iy < rows) {
+        out[ix * rows + iy] = in[iy * cols + ix];
+    }
+}
+
+// Optimized with shared memory
+__global__ void transposeShared(float *in, float *out, int rows, int cols) {
+    __shared__ float tile[TILE_DIM][TILE_DIM + 1];
+    
+    int x = blockIdx.x * TILE_DIM + threadIdx.x;
+    int y = blockIdx.y * TILE_DIM + threadIdx.y;
+    
+    if (x < cols && y < rows) {
+        tile[threadIdx.y][threadIdx.x] = in[y * cols + x];
+    }
+    __syncthreads();
+    
+    x = blockIdx.y * TILE_DIM + threadIdx.x;
+    y = blockIdx.x * TILE_DIM + threadIdx.y;
+    
+    if (x < rows && y < cols) {
+        out[y * rows + x] = tile[threadIdx.x][threadIdx.y];
+    }
+}
+\end{lstlisting}
+
+\section{C\# Parallel Code}
+
+\subsection{Factorial với Parallel.For}
+
+\begin{lstlisting}[style=csharpstyle, caption={FactorialParallel.cs}]
+using System;
+using System.Threading.Tasks;
+
+namespace Session5 {
+    public class FactorialParallel {
+        public static void Run() {
+            int n = 10;
+            
+            Parallel.For(0, n, i => {
+                long factorial = ComputeFactorial(i);
+                Console.WriteLine($"{i}! = {factorial}");
+            });
+        }
+        
+        public static long ComputeFactorial(int num) {
+            long result = 1;
+            for (int j = 1; j <= num; j++) {
+                result *= j;
+            }
+            return result;
+        }
+    }
+}
+\end{lstlisting}
+
+\subsection{Vector Sum với Local State}
+
+\begin{lstlisting}[style=csharpstyle, caption={VectorSumParallel.cs}]
+using System;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+
+namespace Session5 {
+    public class VectorSumParallel {
+        public static void Run() {
+            int vectorSize = 1000000;
+            int[] vector = Enumerable.Range(1, vectorSize).ToArray();
+            
+            // Parallel with Local State
+            long sum = 0;
+            object lockObj = new object();
+            
+            Parallel.For(0, vectorSize,
+                () => 0L,
+                (i, state, localSum) => localSum + vector[i],
+                (localSum) => {
+                    lock (lockObj) {
+                        sum += localSum;
+                    }
+                }
+            );
+            
+            Console.WriteLine($"Sum = {sum}");
+        }
+    }
+}
+\end{lstlisting}
+
+\subsection{Channel Pattern}
+
+\begin{lstlisting}[style=csharpstyle, caption={FactorialChannel.cs}]
+using System;
+using System.Threading.Channels;
+using System.Threading.Tasks;
+
+namespace Session5 {
+    public class FactorialChannel {
+        public static async Task RunAsync() {
+            int n = 10;
+            var channel = Channel.CreateUnbounded<(int, long)>();
+            
+            // Producer
+            var producer = Task.Run(async () => {
+                for (int i = 0; i < n; i++) {
+                    long fact = ComputeFactorial(i);
+                    await channel.Writer.WriteAsync((i, fact));
+                }
+                channel.Writer.Complete();
+            });
+            
+            // Consumer
+            await foreach (var (num, fact) in channel.Reader.ReadAllAsync()) {
+                Console.WriteLine($"{num}! = {fact}");
+            }
+            
+            await producer;
+        }
+        
+        public static long ComputeFactorial(int num) {
+            long result = 1;
+            for (int j = 1; j <= num; j++) result *= j;
+            return result;
+        }
+    }
+}
+\end{lstlisting}
+
+\section{Dot Product C\#}
+
+\begin{lstlisting}[style=csharpstyle, caption={DotProduct với Task và Channel}]
+using System;
+using System.Linq;
+using System.Threading.Channels;
+using System.Threading.Tasks;
+
+public class DotProductCS {
+    // Sequential
+    public static double Sequential(double[] A, double[] B) {
+        double sum = 0.0;
+        for (int i = 0; i < A.Length; i++)
+            sum += A[i] * B[i];
+        return sum;
+    }
+    
+    // Task-based
+    public static double WithTasks(double[] A, double[] B) {
+        int numChunks = Environment.ProcessorCount;
+        int chunkSize = (A.Length + numChunks - 1) / numChunks;
+        double[] partialSums = new double[numChunks];
+        Task[] tasks = new Task[numChunks];
+        
+        for (int c = 0; c < numChunks; c++) {
+            int chunk = c;
+            int start = chunk * chunkSize;
+            int end = Math.Min(start + chunkSize, A.Length);
+            
+            tasks[c] = Task.Run(() => {
+                double local = 0.0;
+                for (int i = start; i < end; i++)
+                    local += A[i] * B[i];
+                partialSums[chunk] = local;
+            });
+        }
+        
+        Task.WaitAll(tasks);
+        return partialSums.Sum();
+    }
+    
+    // Channel-based
+    public static async Task<double> WithChannel(double[] A, double[] B) {
+        int numChunks = Environment.ProcessorCount;
+        int chunkSize = (A.Length + numChunks - 1) / numChunks;
+        var channel = Channel.CreateUnbounded<double>();
+        
+        var producers = new Task[numChunks];
+        for (int c = 0; c < numChunks; c++) {
+            int start = c * chunkSize;
+            int end = Math.Min(start + chunkSize, A.Length);
+            
+            producers[c] = Task.Run(async () => {
+                double local = 0.0;
+                for (int i = start; i < end; i++)
+                    local += A[i] * B[i];
+                await channel.Writer.WriteAsync(local);
+            });
+        }
+        
+        _ = Task.Run(async () => {
+            await Task.WhenAll(producers);
+            channel.Writer.Complete();
+        });
+        
+        double total = 0.0;
+        await foreach (var partial in channel.Reader.ReadAllAsync()) {
+            total += partial;
+        }
+        return total;
+    }
+}
+\end{lstlisting}
+
+\section{Cách biên dịch và chạy}
+
+\subsection{CUDA}
+
+\begin{lstlisting}[language=bash, caption={Biên dịch và chạy CUDA}]
+# Bien dich
+nvcc -o vector_sum vector_sum.cu
+
+# Chay
+./vector_sum
+
+# Voi toi uu
+nvcc -O3 -arch=sm_75 -o optimized program.cu
+
+# Debug
+nvcc -G -g -o debug program.cu
+cuda-gdb ./debug
+\end{lstlisting}
+
+\subsection{C\#}
+
+\begin{lstlisting}[language=bash, caption={Biên dịch và chạy C\#}]
+# Tao project
+dotnet new console -n MyProject
+
+# Build
+dotnet build
+
+# Chay
+dotnet run
+
+# Release build
+dotnet build -c Release
+\end{lstlisting}
+
+\section{Cấu hình Google Colab cho CUDA}
+
+\begin{lstlisting}[language=python, caption={Setup CUDA trên Google Colab}]
+# Kiem tra GPU
+!nvidia-smi
+
+# Viet file .cu
+%%writefile program.cu
+#include <stdio.h>
+__global__ void hello() {
+    printf("Hello from thread %d\n", threadIdx.x);
+}
+int main() {
+    hello<<<1, 10>>>();
+    cudaDeviceSynchronize();
+    return 0;
+}
+
+# Bien dich va chay
+!nvcc -o program program.cu
+!./program
+\end{lstlisting}
+
+\section{Tài liệu tham khảo bổ sung}
+
+\begin{itemize}
+    \item NVIDIA CUDA C Programming Guide: \url{https://docs.nvidia.com/cuda/}
+    \item CUDA By Example (Book): Sanders \& Kandrot
+    \item Professional CUDA C Programming (Book): Cheng et al.
+    \item Microsoft C\# Parallel Programming: \url{https://docs.microsoft.com/en-us/dotnet/standard/parallel-programming/}
+    \item Thrust Library: \url{https://thrust.github.io/}
+\end{itemize}
