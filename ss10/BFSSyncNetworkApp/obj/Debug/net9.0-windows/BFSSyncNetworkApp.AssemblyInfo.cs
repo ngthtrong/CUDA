@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("BFSSyncNetworkApp")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+a92175bd385820fd02a6dd3f1187b925e31309a6")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+e58902106bae5196dc57356075f0697aaa7e8340")]
 [assembly: System.Reflection.AssemblyProductAttribute("BFSSyncNetworkApp")]
 [assembly: System.Reflection.AssemblyTitleAttribute("BFSSyncNetworkApp")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

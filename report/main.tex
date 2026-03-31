@@ -7,7 +7,16 @@
 % ============================================================================
 % PACKAGES
 % ============================================================================
+\usepackage{iftex}
+\ifPDFTeX
 \usepackage[utf8]{inputenc}
+\else
+\usepackage{fontspec}
+\defaultfontfeatures{Ligatures=TeX}
+\setmainfont{Times New Roman}
+\setsansfont{Arial}
+\setmonofont{Consolas}
+\fi
 \usepackage[vietnamese]{babel}
 \usepackage{amsmath,amsfonts,amssymb}
 \usepackage{graphicx}
@@ -22,7 +31,7 @@
 \usepackage{longtable}
 \usepackage{caption}
 \usepackage{subcaption}
-\usepackage{hyperref}
+\usepackage[hypertexnames=false]{hyperref}
 \usepackage{geometry}
 \usepackage{fancyhdr}
 \usepackage{tocloft}
@@ -32,7 +41,7 @@
 \usepackage{wrapfig}
 
 % TikZ libraries
-\usetikzlibrary{shapes,arrows,positioning,calc,fit,backgrounds,shadows,decorations.pathreplacing}
+\usetikzlibrary{shapes,arrows,positioning,calc,fit,backgrounds,shadows,decorations.pathreplacing,patterns}
 \pgfplotsset{compat=1.18}
 
 % ============================================================================
@@ -50,6 +59,9 @@
 \fancyhead[L]{\leftmark}
 \fancyhead[R]{CT225H - Lập trình Song song}
 \fancyfoot[C]{\thepage}
+\setlength{\headheight}{18pt}
+\setlength{\emergencystretch}{3em}
+\Urlmuskip=0mu plus 2mu\relax
 \renewcommand{\headrulewidth}{0.4pt}
 \renewcommand{\footrulewidth}{0.4pt}
 
@@ -142,9 +154,8 @@
     \begin{center}
         \vspace*{0.5cm}
         
-        \textbf{\Large TRƯỜNG ĐẠI HỌC CẦN THƠ}\\[0.3cm]
-        \textbf{\large KHOA CÔNG NGHỆ THÔNG TIN VÀ TRUYỀN THÔNG}\\[0.2cm]
-        \textbf{\large BỘ MÔN KHOA HỌC MÁY TÍNH}
+        \textbf{\Large ĐẠI HỌC CẦN THƠ}\\[0.3cm]
+        \textbf{\large TRƯỜNG CÔNG NGHỆ THÔNG TIN VÀ TRUYỀN THÔNG}\\[0.2cm]
         
         \vspace{1cm}
         
@@ -172,7 +183,7 @@
                   minimum width=12cm, minimum height=3cm,
                   text width=11cm, align=center] {
                 \Large\bfseries Lập trình Song song với CUDA\\[0.3cm]
-                \large Parallel Programming with NVIDIA CUDA\\[0.2cm]
+                \large Parallel Programming with CUDA\\[0.2cm]
                 \normalsize Từ cơ bản đến nâng cao
             };
         \end{tikzpicture}
@@ -182,8 +193,7 @@
         \begin{minipage}{0.45\textwidth}
             \begin{flushleft}
                 \textbf{Giảng viên hướng dẫn:}\\
-                ThS. Lâm Hoài Bảo\\
-                Bộ môn KHMT - CNTT\&TT
+                TS. Lâm Hoài Bảo
             \end{flushleft}
         \end{minipage}
         \hfill
@@ -216,11 +226,9 @@
 \chapter*{Lời cảm ơn}
 \addcontentsline{toc}{chapter}{Lời cảm ơn}
 
-Trước tiên, em xin gửi lời cảm ơn chân thành và sâu sắc nhất đến \textbf{Thầy Lâm Hoài Bảo} - giảng viên bộ môn Khoa học Máy tính, Khoa Công nghệ Thông tin và Truyền thông, Trường Đại học Cần Thơ. Thầy đã tận tình giảng dạy, hướng dẫn và truyền đạt những kiến thức quý báu về lập trình song song trong suốt học kỳ vừa qua.
+Trước tiên, em xin gửi lời cảm ơn chân thành và sâu sắc nhất đến \textbf{Thầy Lâm Hoài Bảo} - giảng viên bộ môn Lập trình song song với CUDA, Trường Công nghệ Thông tin và Truyền thông, Trường Đại học Cần Thơ. Thầy đã tận tình giảng dạy, hướng dẫn và truyền đạt những kiến thức quý báu về lập trình song song trong suốt học kỳ vừa qua.
 
-Em cũng xin cảm ơn \textbf{Khoa Công nghệ Thông tin và Truyền thông} đã tạo điều kiện thuận lợi về cơ sở vật chất và môi trường học tập, giúp em có thể tiếp cận và thực hành với các công nghệ hiện đại.
-
-Đặc biệt, em xin gửi lời cảm ơn đến nền tảng \textbf{Google Colab} đã cung cấp môi trường GPU miễn phí, giúp sinh viên như em có thể học tập và thực hành CUDA mà không cần đầu tư phần cứng đắt tiền.
+Em cũng xin cảm ơn \textbf{Trường Công nghệ Thông tin và Truyền thông} đã tạo điều kiện thuận lợi về cơ sở vật chất và môi trường học tập, giúp em có thể tiếp cận và thực hành với các công nghệ hiện đại.
 
 Trong quá trình học tập và hoàn thành báo cáo, do kiến thức còn hạn chế nên không tránh khỏi những thiếu sót. Em rất mong nhận được sự góp ý từ Thầy và các bạn để báo cáo được hoàn thiện hơn.
 
@@ -304,20 +312,20 @@ D2H & Device to Host \\
 
 \begin{enumerate}[label={[\arabic*]}]
     \item NVIDIA Corporation. \textit{CUDA C++ Programming Guide}. Version 12.0, 2023. \\
-          \url{https://docs.nvidia.com/cuda/cuda-c-programming-guide/}
+          \href{https://docs.nvidia.com/cuda/cuda-c-programming-guide/}{docs.nvidia.com/cuda/cuda-c-programming-guide}
     
     \item Sanders, J. \& Kandrot, E. \textit{CUDA by Example: An Introduction to General-Purpose GPU Programming}. Addison-Wesley, 2010.
     
     \item Kirk, D. B. \& Hwu, W. W. \textit{Programming Massively Parallel Processors: A Hands-on Approach}. 3rd Edition, Morgan Kaufmann, 2016.
     
     \item Microsoft. \textit{Task Parallel Library (TPL) Documentation}. \\
-          \url{https://docs.microsoft.com/en-us/dotnet/standard/parallel-programming/}
+            \href{https://docs.microsoft.com/en-us/dotnet/standard/parallel-programming/}{docs.microsoft.com/dotnet/parallel-programming}
     
     \item Viblo. \textit{Lập trình song song - CUDA cơ bản}. \\
-          \url{https://viblo.asia/p/lap-trinh-song-song-bai-3-hello-world-cuda-c-0gdJzxbkVz5}
+            \href{https://viblo.asia/p/lap-trinh-song-song-bai-3-hello-world-cuda-c-0gdJzxbkVz5}{viblo.asia/.../lap-trinh-song-song-bai-3-hello-world-cuda-c}
     
     \item NVIDIA Developer Forums. \textit{Running CUDA on Google Colab}. \\
-          \url{https://forums.developer.nvidia.com/t/running-c-and-cuda-in-google-colab/237108}
+            \href{https://forums.developer.nvidia.com/t/running-c-and-cuda-in-google-colab/237108}{forums.developer.nvidia.com/.../running-c-and-cuda-in-google-colab}
     
     \item Cormen, T. H., Leiserson, C. E., Rivest, R. L., \& Stein, C. \textit{Introduction to Algorithms}. 3rd Edition, MIT Press, 2009.
     

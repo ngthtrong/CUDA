@@ -1,0 +1,31 @@
+\babel@toc {vietnamese}{}\relax 
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {1.1}{\ignorespaces So sánh CPU và GPU}}{13}{table.caption.18}%
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {2.1}{\ignorespaces Các biến tích hợp trong CUDA}}{17}{table.caption.85}%
+\contentsline {table}{\numberline {2.2}{\ignorespaces So sánh các loại bộ nhớ CUDA}}{18}{table.caption.93}%
+\contentsline {table}{\numberline {2.3}{\ignorespaces Ảnh hưởng của Block Size đến hiệu năng (ví dụ)}}{21}{table.caption.164}%
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {3.1}{\ignorespaces So sánh hiệu năng Vector Sum với các Block Size khác nhau}}{25}{table.caption.293}%
+\contentsline {table}{\numberline {3.2}{\ignorespaces Hiệu năng Matrix Sum với các cấu hình Block khác nhau}}{28}{table.caption.417}%
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {4.1}{\ignorespaces So sánh hiệu năng 3 thuật toán Parallel Reduction}}{34}{table.caption.562}%
+\contentsline {table}{\numberline {4.2}{\ignorespaces Phân tích ưu nhược điểm các thuật toán}}{35}{table.caption.565}%
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {5.1}{\ignorespaces So sánh các phương pháp Matrix Transpose}}{41}{table.caption.693}%
+\contentsline {table}{\numberline {5.2}{\ignorespaces So sánh các phương pháp C\# (N = 1,000,000)}}{43}{table.caption.763}%
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {6.1}{\ignorespaces So sánh các thuật toán Sorting trên GPU}}{49}{table.caption.934}%
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {7.1}{\ignorespaces So sánh các phương pháp Quick Sort}}{56}{table.caption.1139}%
+\contentsline {table}{\numberline {7.2}{\ignorespaces Benchmark Quick Sort implementations}}{56}{table.caption.1140}%
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {8.1}{\ignorespaces So sánh BFS CPU vs GPU}}{63}{table.caption.1288}%
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {9.1}{\ignorespaces So sánh các phương pháp song song trong C\#}}{71}{table.caption.1541}%
+\contentsline {table}{\numberline {9.2}{\ignorespaces Benchmark: Vector Sum (N = 1,000,000)}}{71}{table.caption.1542}%
+\contentsline {table}{\numberline {9.3}{\ignorespaces So sánh C\# Parallel và CUDA}}{73}{table.caption.1589}%
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {10.1}{\ignorespaces Tổng hợp Speedup đạt được}}{75}{table.caption.1607}%
+\contentsline {table}{\numberline {10.2}{\ignorespaces So sánh các nền tảng lập trình song song}}{77}{table.caption.1624}%
+\addvspace {10\p@ }

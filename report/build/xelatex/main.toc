@@ -1,0 +1,176 @@
+\babel@toc {vietnamese}{}\relax 
+\contentsline {chapter}{Lời cảm ơn}{2}{chapter*.1}%
+\contentsline {chapter}{Danh mục hình ảnh}{8}{chapter*.1}%
+\contentsline {chapter}{Danh mục bảng}{9}{chapter*.1}%
+\contentsline {chapter}{Danh mục từ viết tắt}{10}{chapter*.2}%
+\contentsline {chapter}{\numberline {1}Giới thiệu về Lập trình Song song}{11}{chapter.3}%
+\contentsline {section}{\numberline {1.1}Đặt vấn đề}{11}{section.4}%
+\contentsline {section}{\numberline {1.2}Lập trình Tuần tự vs Song song}{11}{section.6}%
+\contentsline {subsection}{\numberline {1.2.1}Lập trình Tuần tự (Sequential Programming)}{11}{subsection.7}%
+\contentsline {subsection}{\numberline {1.2.2}Lập trình Song song (Parallel Programming)}{12}{subsection.14}%
+\contentsline {section}{\numberline {1.3}Giới thiệu về CUDA}{12}{section.16}%
+\contentsline {subsection}{\numberline {1.3.1}CUDA là gì?}{12}{subsection.17}%
+\contentsline {subsection}{\numberline {1.3.2}Mô hình lập trình CUDA}{13}{subsection.19}%
+\contentsline {subsection}{\numberline {1.3.3}Kernel Function}{13}{subsection.23}%
+\contentsline {section}{\numberline {1.4}Thiết lập môi trường}{14}{section.48}%
+\contentsline {subsection}{\numberline {1.4.1}Yêu cầu hệ thống}{14}{subsection.49}%
+\contentsline {subsection}{\numberline {1.4.2}Google Colab - Giải pháp đám mây miễn phí}{14}{subsection.50}%
+\contentsline {section}{\numberline {1.5}Kết luận chương}{15}{section.76}%
+\contentsline {chapter}{\numberline {2}Mô hình Lập trình CUDA}{16}{chapter.77}%
+\contentsline {section}{\numberline {2.1}Kiến trúc GPU NVIDIA}{16}{section.78}%
+\contentsline {subsection}{\numberline {2.1.1}Streaming Multiprocessor (SM)}{16}{subsection.79}%
+\contentsline {subsection}{\numberline {2.1.2}Mô hình SIMT (Single Instruction Multiple Thread)}{16}{subsection.81}%
+\contentsline {section}{\numberline {2.2}Hệ thống phân cấp Thread}{17}{section.82}%
+\contentsline {subsection}{\numberline {2.2.1}Biến tích hợp (Built-in Variables)}{17}{subsection.84}%
+\contentsline {subsection}{\numberline {2.2.2}Tính chỉ số global}{17}{subsection.86}%
+\contentsline {section}{\numberline {2.3}Mô hình bộ nhớ CUDA}{18}{section.90}%
+\contentsline {subsection}{\numberline {2.3.1}Các loại bộ nhớ}{18}{subsection.91}%
+\contentsline {subsection}{\numberline {2.3.2}Các hàm quản lý bộ nhớ}{19}{subsection.94}%
+\contentsline {section}{\numberline {2.4}Đồng bộ hóa}{19}{section.113}%
+\contentsline {subsection}{\numberline {2.4.1}Đồng bộ trong Block}{19}{subsection.114}%
+\contentsline {subsection}{\numberline {2.4.2}Đồng bộ Grid}{19}{subsection.131}%
+\contentsline {section}{\numberline {2.5}Đo thời gian thực thi}{20}{section.137}%
+\contentsline {subsection}{\numberline {2.5.1}Sử dụng CUDA Events}{20}{subsection.138}%
+\contentsline {section}{\numberline {2.6}Cấu hình Kernel tối ưu}{20}{section.162}%
+\contentsline {subsection}{\numberline {2.6.1}Chọn Block Size}{20}{subsection.163}%
+\contentsline {section}{\numberline {2.7}Kết luận chương}{21}{section.165}%
+\contentsline {chapter}{\numberline {3}Vector Sum và Matrix Sum}{22}{chapter.166}%
+\contentsline {section}{\numberline {3.1}Bài toán Vector Sum (Cộng hai Vector)}{22}{section.167}%
+\contentsline {subsection}{\numberline {3.1.1}Mô tả bài toán}{22}{subsection.168}%
+\contentsline {subsection}{\numberline {3.1.2}Cài đặt trên Host (CPU)}{22}{subsection.171}%
+\contentsline {subsection}{\numberline {3.1.3}Cài đặt Kernel CUDA}{22}{subsection.178}%
+\contentsline {subsection}{\numberline {3.1.4}Chương trình hoàn chỉnh}{23}{subsection.189}%
+\contentsline {subsection}{\numberline {3.1.5}Phân tích hiệu năng}{25}{subsection.292}%
+\contentsline {section}{\numberline {3.2}Bài toán Matrix Sum (Cộng hai Ma trận)}{25}{section.294}%
+\contentsline {subsection}{\numberline {3.2.1}Mô tả bài toán}{25}{subsection.295}%
+\contentsline {subsection}{\numberline {3.2.2}Ánh xạ 2D}{25}{subsection.297}%
+\contentsline {subsection}{\numberline {3.2.3}Cài đặt Kernel 2D}{26}{subsection.299}%
+\contentsline {subsection}{\numberline {3.2.4}Chương trình hoàn chỉnh}{26}{subsection.315}%
+\contentsline {subsection}{\numberline {3.2.5}So sánh các cấu hình Block 2D}{28}{subsection.416}%
+\contentsline {section}{\numberline {3.3}Boundary Check - Kiểm tra biên}{28}{section.419}%
+\contentsline {subsection}{\numberline {3.3.1}Tại sao cần Boundary Check?}{28}{subsection.420}%
+\contentsline {subsection}{\numberline {3.3.2}Cài đặt Boundary Check}{29}{subsection.422}%
+\contentsline {section}{\numberline {3.4}Kết luận chương}{29}{section.438}%
+\contentsline {chapter}{\numberline {4}Parallel Reduction}{30}{chapter.439}%
+\contentsline {section}{\numberline {4.1}Giới thiệu về Reduction}{30}{section.440}%
+\contentsline {subsection}{\numberline {4.1.1}Khái niệm}{30}{subsection.441}%
+\contentsline {subsection}{\numberline {4.1.2}Serial Reduction}{30}{subsection.443}%
+\contentsline {section}{\numberline {4.2}Parallel Reduction - Phiên bản cơ bản}{31}{section.463}%
+\contentsline {subsection}{\numberline {4.2.1}Ý tưởng}{31}{subsection.464}%
+\contentsline {subsection}{\numberline {4.2.2}Thuật toán reduceNeighbors (Phiên bản 1)}{31}{subsection.466}%
+\contentsline {section}{\numberline {4.3}Parallel Reduction - Phiên bản tối ưu}{32}{section.488}%
+\contentsline {subsection}{\numberline {4.3.1}reduceNeighbors2 - Giảm Warp Divergence}{32}{subsection.489}%
+\contentsline {subsection}{\numberline {4.3.2}reduceInterLeaves - Interleaved Pair}{33}{subsection.510}%
+\contentsline {section}{\numberline {4.4}So sánh hiệu năng}{33}{section.530}%
+\contentsline {subsection}{\numberline {4.4.1}Benchmark với các kích thước khác nhau}{33}{subsection.531}%
+\contentsline {subsection}{\numberline {4.4.2}Phân tích}{35}{subsection.564}%
+\contentsline {section}{\numberline {4.5}Bài tập mở rộng: Float Reduction}{35}{section.566}%
+\contentsline {section}{\numberline {4.6}Kết luận chương}{36}{section.584}%
+\contentsline {chapter}{\numberline {5}Dot Product và Matrix Transpose}{37}{chapter.585}%
+\contentsline {section}{\numberline {5.1}Bài toán Dot Product (Tích vô hướng)}{37}{section.586}%
+\contentsline {subsection}{\numberline {5.1.1}Định nghĩa}{37}{subsection.587}%
+\contentsline {subsection}{\numberline {5.1.2}Ứng dụng}{37}{subsection.589}%
+\contentsline {subsection}{\numberline {5.1.3}Thuật toán Song song}{37}{subsection.590}%
+\contentsline {subsection}{\numberline {5.1.4}Cài đặt CUDA}{38}{subsection.594}%
+\contentsline {section}{\numberline {5.2}Bài toán Matrix Transpose (Chuyển vị Ma trận)}{39}{section.648}%
+\contentsline {subsection}{\numberline {5.2.1}Định nghĩa}{39}{subsection.649}%
+\contentsline {subsection}{\numberline {5.2.2}Vấn đề Memory Coalescing}{39}{subsection.652}%
+\contentsline {subsection}{\numberline {5.2.3}Cài đặt cơ bản (Naive)}{39}{subsection.654}%
+\contentsline {subsection}{\numberline {5.2.4}Tối ưu với Shared Memory}{40}{subsection.666}%
+\contentsline {section}{\numberline {5.3}So sánh hiệu năng}{40}{section.692}%
+\contentsline {section}{\numberline {5.4}Cài đặt C\# (Bài tập midterm)}{41}{section.695}%
+\contentsline {subsection}{\numberline {5.4.1}Dot Product với C\# Parallel}{41}{subsection.696}%
+\contentsline {subsection}{\numberline {5.4.2}Kết quả Benchmark C\#}{42}{subsection.762}%
+\contentsline {section}{\numberline {5.5}Kết luận chương}{42}{section.764}%
+\contentsline {chapter}{\numberline {6}Các Thuật toán Sorting với CUDA}{44}{chapter.765}%
+\contentsline {section}{\numberline {6.1}Tổng quan về Parallel Sorting}{44}{section.766}%
+\contentsline {subsection}{\numberline {6.1.1}Các phương pháp tiếp cận}{44}{subsection.767}%
+\contentsline {section}{\numberline {6.2}Histogram}{44}{section.768}%
+\contentsline {subsection}{\numberline {6.2.1}Định nghĩa}{44}{subsection.769}%
+\contentsline {subsection}{\numberline {6.2.2}Cài đặt CUDA với Atomic Operations}{45}{subsection.771}%
+\contentsline {section}{\numberline {6.3}Counting Sort}{45}{section.811}%
+\contentsline {subsection}{\numberline {6.3.1}Thuật toán}{45}{subsection.812}%
+\contentsline {subsection}{\numberline {6.3.2}Cài đặt CUDA}{46}{subsection.817}%
+\contentsline {section}{\numberline {6.4}Radix Sort}{47}{section.866}%
+\contentsline {subsection}{\numberline {6.4.1}Nguyên lý}{47}{subsection.867}%
+\contentsline {subsection}{\numberline {6.4.2}Cài đặt CUDA}{47}{subsection.869}%
+\contentsline {section}{\numberline {6.5}So sánh hiệu năng}{49}{section.933}%
+\contentsline {section}{\numberline {6.6}Tối ưu hóa}{49}{section.936}%
+\contentsline {subsection}{\numberline {6.6.1}Kỹ thuật tối ưu cho Sorting trên GPU}{49}{subsection.937}%
+\contentsline {section}{\numberline {6.7}Kết luận chương}{50}{section.944}%
+\contentsline {chapter}{\numberline {7}Quick Sort Song song}{51}{chapter.948}%
+\contentsline {section}{\numberline {7.1}Giới thiệu Quick Sort}{51}{section.949}%
+\contentsline {subsection}{\numberline {7.1.1}Thuật toán tuần tự}{51}{subsection.950}%
+\contentsline {section}{\numberline {7.2}Song song hóa Quick Sort}{51}{section.955}%
+\contentsline {subsection}{\numberline {7.2.1}Thách thức}{51}{subsection.956}%
+\contentsline {subsection}{\numberline {7.2.2}Chiến lược GPU Quick Sort}{52}{subsection.961}%
+\contentsline {section}{\numberline {7.3}Thuật toán Parallel Partition}{52}{section.963}%
+\contentsline {subsection}{\numberline {7.3.1}Work-Efficient Partition}{52}{subsection.964}%
+\contentsline {section}{\numberline {7.4}GPU Quick Sort Implementation}{53}{section.996}%
+\contentsline {subsection}{\numberline {7.4.1}Dynamic Parallelism Approach}{53}{subsection.997}%
+\contentsline {subsection}{\numberline {7.4.2}Block-level Quick Sort với Shared Memory}{54}{subsection.1042}%
+\contentsline {section}{\numberline {7.5}Bitonic Sort Network}{55}{section.1097}%
+\contentsline {section}{\numberline {7.6}So sánh và Phân tích}{56}{section.1138}%
+\contentsline {section}{\numberline {7.7}Kết luận chương}{56}{section.1141}%
+\contentsline {chapter}{\numberline {8}BFS trong Mạng đồng bộ}{58}{chapter.1146}%
+\contentsline {section}{\numberline {8.1}Giới thiệu BFS}{58}{section.1147}%
+\contentsline {subsection}{\numberline {8.1.1}Thuật toán Breadth-First Search}{58}{subsection.1148}%
+\contentsline {subsection}{\numberline {8.1.2}BFS trong Mạng Đồng bộ (Synchronous Networks)}{58}{subsection.1149}%
+\contentsline {section}{\numberline {8.2}Biểu diễn Đồ thị: CSR Format}{59}{section.1154}%
+\contentsline {subsection}{\numberline {8.2.1}Compressed Sparse Row (CSR)}{59}{subsection.1155}%
+\contentsline {section}{\numberline {8.3}Cài đặt CUDA}{59}{section.1157}%
+\contentsline {subsection}{\numberline {8.3.1}Cấu trúc dữ liệu}{59}{subsection.1158}%
+\contentsline {subsection}{\numberline {8.3.2}BFS Kernel với Atomic Operations}{59}{subsection.1177}%
+\contentsline {subsection}{\numberline {8.3.3}Host Code - Vòng lặp Đồng bộ}{60}{subsection.1216}%
+\contentsline {section}{\numberline {8.4}Phân tích Thuật toán}{61}{section.1267}%
+\contentsline {subsection}{\numberline {8.4.1}Message Complexity}{61}{subsection.1268}%
+\contentsline {subsection}{\numberline {8.4.2}Atomic Operations}{62}{subsection.1270}%
+\contentsline {section}{\numberline {8.5}So sánh CPU và GPU}{63}{section.1287}%
+\contentsline {section}{\numberline {8.6}Đọc Input từ JSON}{63}{section.1290}%
+\contentsline {section}{\numberline {8.7}Tối ưu hóa}{64}{section.1323}%
+\contentsline {subsection}{\numberline {8.7.1}Các kỹ thuật tối ưu BFS trên GPU}{64}{subsection.1324}%
+\contentsline {section}{\numberline {8.8}Kết luận chương}{65}{section.1354}%
+\contentsline {chapter}{\numberline {9}Lập trình Song song với C\#}{66}{chapter.1359}%
+\contentsline {section}{\numberline {9.1}Giới thiệu}{66}{section.1360}%
+\contentsline {section}{\numberline {9.2}Parallel.For}{66}{section.1362}%
+\contentsline {subsection}{\numberline {9.2.1}Cú pháp cơ bản}{66}{subsection.1363}%
+\contentsline {subsection}{\numberline {9.2.2}Ví dụ: Tính Factorial}{67}{subsection.1381}%
+\contentsline {subsection}{\numberline {9.2.3}Parallel Reduction với Local State}{67}{subsection.1404}%
+\contentsline {section}{\numberline {9.3}Channel (Producer-Consumer Pattern)}{69}{section.1456}%
+\contentsline {subsection}{\numberline {9.3.1}Giới thiệu Channels}{69}{subsection.1457}%
+\contentsline {subsection}{\numberline {9.3.2}Ví dụ: Tính Factorial với Channel}{69}{subsection.1477}%
+\contentsline {section}{\numberline {9.4}PLINQ (Parallel LINQ)}{70}{section.1513}%
+\contentsline {section}{\numberline {9.5}So sánh các phương pháp}{71}{section.1540}%
+\contentsline {section}{\numberline {9.6}Best Practices}{71}{section.1544}%
+\contentsline {subsection}{\numberline {9.6.1}Khi nào sử dụng mỗi phương pháp}{71}{subsection.1545}%
+\contentsline {subsection}{\numberline {9.6.2}Tránh các lỗi phổ biến}{72}{subsection.1550}%
+\contentsline {section}{\numberline {9.7}So sánh C\# Parallel với CUDA}{73}{section.1588}%
+\contentsline {section}{\numberline {9.8}Kết luận chương}{73}{section.1590}%
+\contentsline {chapter}{\numberline {10}Kết luận}{74}{chapter.1594}%
+\contentsline {section}{\numberline {10.1}Tổng kết nội dung}{74}{section.1595}%
+\contentsline {subsection}{\numberline {10.1.1}CUDA Programming}{74}{subsection.1596}%
+\contentsline {subsection}{\numberline {10.1.2}C\# Parallel Programming}{74}{subsection.1602}%
+\contentsline {section}{\numberline {10.2}Kết quả đạt được}{75}{section.1606}%
+\contentsline {section}{\numberline {10.3}Bài học kinh nghiệm}{75}{section.1609}%
+\contentsline {subsection}{\numberline {10.3.1}Khi nào nên dùng GPU}{75}{subsection.1610}%
+\contentsline {subsection}{\numberline {10.3.2}Các kỹ thuật tối ưu quan trọng}{75}{subsection.1611}%
+\contentsline {section}{\numberline {10.4}Hướng phát triển}{76}{section.1618}%
+\contentsline {subsection}{\numberline {10.4.1}Mở rộng kiến thức}{76}{subsection.1619}%
+\contentsline {subsection}{\numberline {10.4.2}So sánh với các công nghệ khác}{77}{subsection.1623}%
+\contentsline {section}{\numberline {10.5}Kết luận}{77}{section.1625}%
+\contentsline {chapter}{Tài liệu tham khảo}{78}{chapter*.1631}%
+\contentsline {chapter}{\numberline {A}Mã nguồn đầy đủ}{79}{appendix.1642}%
+\contentsline {section}{\numberline {A.1}CUDA Kernels}{79}{section.1643}%
+\contentsline {subsection}{\numberline {A.1.1}Vector Sum (vecto.cu)}{79}{subsection.1644}%
+\contentsline {subsection}{\numberline {A.1.2}Parallel Reduction (parallel\_reduction.cu)}{80}{subsection.1699}%
+\contentsline {subsection}{\numberline {A.1.3}Matrix Transpose}{81}{subsection.1766}%
+\contentsline {section}{\numberline {A.2}C\# Parallel Code}{82}{section.1799}%
+\contentsline {subsection}{\numberline {A.2.1}Factorial với Parallel.For}{82}{subsection.1800}%
+\contentsline {subsection}{\numberline {A.2.2}Vector Sum với Local State}{82}{subsection.1825}%
+\contentsline {subsection}{\numberline {A.2.3}Channel Pattern}{83}{subsection.1856}%
+\contentsline {section}{\numberline {A.3}Dot Product C\#}{84}{section.1892}%
+\contentsline {section}{\numberline {A.4}Cách biên dịch và chạy}{85}{section.1963}%
+\contentsline {subsection}{\numberline {A.4.1}CUDA}{85}{subsection.1964}%
+\contentsline {subsection}{\numberline {A.4.2}C\#}{85}{subsection.1978}%
+\contentsline {section}{\numberline {A.5}Cấu hình Google Colab cho CUDA}{86}{section.1991}%
+\contentsline {section}{\numberline {A.6}Tài liệu tham khảo bổ sung}{86}{section.2011}%

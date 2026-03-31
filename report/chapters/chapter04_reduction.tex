@@ -371,6 +371,7 @@ float runReduction(void (*kernel)(int*, int*, int),
 \centering
 \caption{So sánh hiệu năng 3 thuật toán Parallel Reduction}
 \label{tab:reduction_comparison}
+\resizebox{\textwidth}{!}{%
 \begin{tabular}{@{}lcccc@{}}
 \toprule
 \textbf{Input Size} & \textbf{reduceNeighbors} & \textbf{reduceNeighbors2} & \textbf{reduceInterLeaves} & \textbf{Best Speedup} \\
@@ -382,6 +383,7 @@ $2^{22}$ (4M) & 1.2134 ms & 0.9234 ms & 0.6823 ms & 1.78x \\
 $2^{24}$ (16M) & 4.7823 ms & 3.6234 ms & 2.6789 ms & 1.79x \\
 \bottomrule
 \end{tabular}
+}
 \end{table}
 
 \begin{figure}[H]
@@ -437,15 +439,15 @@ $2^{24}$ (16M) & 4.7823 ms & 3.6234 ms & 2.6789 ms & 1.79x \\
 \centering
 \caption{Phân tích ưu nhược điểm các thuật toán}
 \label{tab:reduction_analysis}
-\begin{tabular}{@{}lp{4cm}p{4cm}p{4cm}@{}}
+\begin{tabular}{@{}lp{3.8cm}p{3.8cm}p{3.6cm}@{}}
 \toprule
 \textbf{Thuật toán} & \textbf{Ưu điểm} & \textbf{Nhược điểm} & \textbf{Warp Divergence} \\
 \midrule
-reduceNeighbors & Đơn giản, dễ hiểu & Divergence cao, memory access pattern kém & Cao \\
+reduceNeighbors & Đơn giản, dễ hiểu & Divergence cao,\newline truy cập kém & Cao \\
 \midrule
 reduceNeighbors2 & Giảm divergence đáng kể & Vẫn còn bank conflicts & Trung bình \\
 \midrule
-reduceInterLeaves & Memory coalescing tốt, ít bank conflicts & Phức tạp hơn một chút & Thấp \\
+reduceInterLeaves & Coalescing tốt, ít xung đột bank & Phức tạp hơn một chút & Thấp \\
 \bottomrule
 \end{tabular}
 \end{table}

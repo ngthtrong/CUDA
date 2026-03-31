@@ -20,7 +20,7 @@ C[i] = A[i] + B[i], \quad \forall i \in [0, n-1]
 \begin{tikzpicture}[scale=0.8]
     % Vector A
     \node[left] at (-0.5, 2) {\textbf{A:}};
-    \foreach \i/\v in {0/3.1, 1/2.4, 2/5.7, 3/1.2, 4/4.8, 5/...} {
+    \foreach \i/\v in {0/3.1, 1/2.4, 2/5.7, 3/1.2, 4/4.8, 5/{\ldots}} {
         \draw[fill=blue!20] (\i*1.2, 1.7) rectangle ++(1,0.6);
         \node[font=\footnotesize] at ({\i*1.2+0.5}, 2) {\v};
     }
@@ -30,7 +30,7 @@ C[i] = A[i] + B[i], \quad \forall i \in [0, n-1]
     
     % Vector B
     \node[left] at (-0.5, 0.3) {\textbf{B:}};
-    \foreach \i/\v in {0/1.5, 1/3.2, 2/2.1, 3/4.5, 4/0.9, 5/...} {
+    \foreach \i/\v in {0/1.5, 1/3.2, 2/2.1, 3/4.5, 4/0.9, 5/{\ldots}} {
         \draw[fill=green!20] (\i*1.2, 0) rectangle ++(1,0.6);
         \node[font=\footnotesize] at ({\i*1.2+0.5}, 0.3) {\v};
     }
@@ -40,7 +40,7 @@ C[i] = A[i] + B[i], \quad \forall i \in [0, n-1]
     
     % Vector C
     \node[left] at (-0.5, -1.4) {\textbf{C:}};
-    \foreach \i/\v in {0/4.6, 1/5.6, 2/7.8, 3/5.7, 4/5.7, 5/...} {
+    \foreach \i/\v in {0/4.6, 1/5.6, 2/7.8, 3/5.7, 4/5.7, 5/{\ldots}} {
         \draw[fill=red!20] (\i*1.2, -1.7) rectangle ++(1,0.6);
         \node[font=\footnotesize] at ({\i*1.2+0.5}, -1.4) {\v};
     }
