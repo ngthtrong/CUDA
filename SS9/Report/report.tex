@@ -1,0 +1,181 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[vietnamese]{babel}
+\usepackage{geometry}
+\geometry{left=2cm,right=2cm,top=2cm,bottom=2cm}
+\usepackage{graphicx}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{amsmath}
+\usepackage{hyperref}
+\usepackage{float}
+\usepackage{enumitem}
+\usepackage{array}
+
+\definecolor{codegreen}{rgb}{0,0.5,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.95}
+
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{blue},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\scriptsize,
+    breaklines=true,
+    numbers=left,
+    numbersep=5pt,
+    frame=single,
+    tabsize=4
+}
+\lstset{style=mystyle}
+
+\title{
+    \textbf{BÁO CÁO BÀI TẬP SESSION 9} \\[0.3cm]
+    \large Sorting \& Counting Song song với CUDA và C\# \\[0.5cm]
+    \normalsize Môn học: CT225H -- Parallel Programming with CUDA
+}
+\author{Nguyễn Thanh Trọng -- B2305615}
+\date{24/03/2026}
+
+\begin{document}
+\maketitle
+
+% ============================================================
+\section{Giới thiệu}
+% ============================================================
+Báo cáo trình bày việc cài đặt ba bài toán song song: \textbf{Đếm số lần xuất hiện}, \textbf{Counting Sort}, và \textbf{Radix Sort}, sử dụng 3 kỹ thuật: (1) CUDA trên GPU, (2) Thread/Task, và (3) Parallel.For trong C\#. Mảng đầu vào gồm $N = 10{,}000{,}000$ số nguyên ngẫu nhiên trong phạm vi $[0, 999]$.
+
+% ============================================================
+\section{Thiết kế thuật toán}
+% ============================================================
+
+\subsection{Bài toán 1 -- Đếm số lần xuất hiện (Histogram)}
+
+Cho mảng $N$ số nguyên, đếm tần suất xuất hiện của mỗi giá trị trong phạm vi $[0, K)$ với $K = 1000$.
+
+\textbf{CUDA:} Sử dụng \textbf{Shared Memory Histogram} -- mỗi block xây dựng histogram cục bộ trong shared memory bằng \texttt{atomicAdd}, sau đó cộng dồn vào histogram global. Grid-stride loop cho mỗi thread.
+
+\textbf{C\# -- Thread/Task:} Chia mảng thành $P$ chunks ($P$ = số CPU cores), mỗi Task xây histogram cục bộ, sau đó merge.
+
+\textbf{C\# -- Parallel.For:} Sử dụng \texttt{Parallel.For} với \texttt{localInit/localFinally} để mỗi thread có histogram riêng, cuối cùng merge thread-safe bằng \texttt{lock}.
+
+\subsection{Bài toán 2 -- Counting Sort}
+
+Sắp xếp mảng dựa trên đếm tần suất: (1) Histogram $\rightarrow$ (2) Prefix Sum $\rightarrow$ (3) Scatter.
+
+\textbf{CUDA:} Histogram song song trên GPU (giống bài 1). Prefix sum trên CPU (vì $K = 1000$ rất nhỏ). Scatter song song trên GPU: mỗi thread xử lý một giá trị $v$, ghi $count[v]$ phần tử = $v$ vào output.
+
+\textbf{C\# -- Thread/Task \& Parallel.For:} Song song hóa bước histogram (mỗi task/thread histogram cục bộ, merge). Prefix sum và scatter tuần tự (đảm bảo stable sort).
+
+\subsection{Bài toán 3 -- Radix Sort (LSD, base 256)}
+
+LSD Radix Sort với cơ số 256, thực hiện 4 pass cho số nguyên 32-bit. Mỗi pass:
+\begin{enumerate}[nosep]
+    \item \textbf{Đếm:} Histogram tần suất digit hiện tại
+    \item \textbf{Prefix sum:} Tính vị trí bắt đầu mỗi bucket
+    \item \textbf{Scatter:} Đặt phần tử vào vị trí đúng (duyệt ngược để stable)
+\end{enumerate}
+
+\textbf{CUDA:} GPU thực hiện histogram mỗi pass bằng shared memory + \texttt{atomicAdd}. CPU thực hiện prefix sum + scatter (đảm bảo stable).
+
+\textbf{C\# -- Thread/Task \& Parallel.For:} Song song hóa bước đếm histogram (mỗi task/thread đếm cục bộ, merge). Prefix sum và scatter tuần tự.
+
+% ============================================================
+\section{Kết quả thực nghiệm}
+% ============================================================
+
+\subsection{Môi trường thực nghiệm}
+\begin{itemize}[nosep]
+    \item \textbf{GPU:} NVIDIA Tesla T4 (Google Colab), CUDA 13.0
+    \item \textbf{CPU (C\#):} 12 logical cores, .NET 9.0 Runtime (Release mode)
+\end{itemize}
+
+\subsection{Bài toán 1 -- Đếm số lần xuất hiện ($N = 10{,}000{,}000$)}
+
+\begin{table}[H]
+\centering
+\caption{So sánh hiệu năng Counting Occurrences}
+\begin{tabular}{llrl}
+\toprule
+\textbf{Nền tảng} & \textbf{Phương pháp} & \textbf{Thời gian (ms)} & \textbf{Correct} \\
+\midrule
+GPU (CUDA)   & CPU Sequential          & 30.7730 & Yes \\
+GPU (CUDA)   & GPU Shared Histogram    & 0.3142  & Yes \\
+\midrule
+C\#          & Sequential              & 14.2735 & PASS \\
+C\#          & Thread/Task (12T)       & 7.6387  & PASS \\
+C\#          & Parallel.For            & 22.1331 & PASS \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Bài toán 2 -- Counting Sort ($N = 10{,}000{,}000$)}
+
+\begin{table}[H]
+\centering
+\caption{So sánh hiệu năng Counting Sort}
+\begin{tabular}{llrl}
+\toprule
+\textbf{Nền tảng} & \textbf{Phương pháp} & \textbf{Thời gian (ms)} & \textbf{Correct} \\
+\midrule
+GPU (CUDA)   & CPU Sequential          & 117.8440 & Yes \\
+GPU (CUDA)   & GPU Counting Sort       & 5.1651   & Yes \\
+\midrule
+C\#          & Sequential              & 67.0621 & PASS \\
+C\#          & Thread/Task (12T)       & 53.8964 & PASS \\
+C\#          & Parallel.For            & 69.9801 & PASS \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Bài toán 3 -- Radix Sort ($N = 10{,}000{,}000$)}
+
+\begin{table}[H]
+\centering
+\caption{So sánh hiệu năng Radix Sort}
+\begin{tabular}{llrl}
+\toprule
+\textbf{Nền tảng} & \textbf{Phương pháp} & \textbf{Thời gian (ms)} & \textbf{Correct} \\
+\midrule
+GPU (CUDA)   & CPU Sequential          & 532.9330  & Yes \\
+GPU (CUDA)   & GPU-assisted Radix      & 376.8464  & Yes \\
+\midrule
+C\#          & Sequential              & 210.4622 & PASS \\
+C\#          & Thread/Task (12T)       & 157.9412 & PASS \\
+C\#          & Parallel.For            & 243.6418 & PASS \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Nhận xét:}
+\begin{itemize}[nosep]
+    \item \textbf{Counting Occurrences:} GPU CUDA đạt speedup \textbf{97.94x} so với CPU (C). Shared memory histogram giảm contention trên global memory, cho hiệu năng rất cao. Trong C\#, Thread/Task (7.64ms) nhanh gần gấp đôi Sequential (14.27ms).
+    \item \textbf{Counting Sort:} GPU đạt speedup \textbf{22.82x} nhờ song song hóa cả histogram và scatter. Trong C\#, Thread/Task cải thiện 19.6\% so với Sequential.
+    \item \textbf{Radix Sort:} GPU-assisted chỉ đạt \textbf{1.41x} do bottleneck memory transfer giữa host/device mỗi pass và scatter tuần tự trên CPU. Trong C\#, Thread/Task cải thiện 25\% nhờ song song hóa bước đếm.
+    \item \textbf{Parallel.For} luôn chậm hơn Sequential do overhead quản lý partitioner lớn hơn lợi ích song song hóa ở bước đếm (histogram cục bộ mỗi partition).
+\end{itemize}
+
+% ============================================================
+\section{Khó khăn và Giải pháp}
+% ============================================================
+
+\begin{enumerate}[nosep]
+    \item \textbf{Race condition trong Histogram (CUDA):} Nhiều thread cùng cập nhật một bin trong histogram gây xung đột. \textit{Giải pháp:} Sử dụng \texttt{atomicAdd} trên shared memory cục bộ mỗi block, giảm contention so với atomic trên global memory.
+
+    \item \textbf{Stable sort trong Counting/Radix Sort:} Bước scatter cần duyệt ngược mảng để đảm bảo thứ tự ổn định. \textit{Giải pháp:} Thực hiện scatter tuần tự (trên CPU hoặc trong C\#), chỉ song song hóa bước histogram.
+
+    \item \textbf{Overhead của Parallel.For (C\#):} Với bước histogram, chi phí quản lý partitioner và tạo histogram cục bộ mỗi partition có thể đáng kể. \textit{Giải pháp:} Sử dụng \texttt{localInit/localFinally} để giảm lock contention.
+
+    \item \textbf{Memory transfer overhead (CUDA Radix Sort):} Mỗi pass của radix sort cần copy dữ liệu giữa host và device cho histogram. \textit{Giải pháp:} Chấp nhận hybrid approach (GPU histogram + CPU scatter) hoặc triển khai toàn bộ trên GPU với kỹ thuật phức tạp hơn.
+\end{enumerate}
+
+% ============================================================
+\section*{Kết luận}
+% ============================================================
+Cả ba bài toán (Counting Occurrences, Counting Sort, Radix Sort) đều có thể song song hóa hiệu quả ở bước histogram/đếm tần suất. CUDA cho hiệu năng tốt nhất nhờ shared memory histogram giảm áp lực trên global memory. Trong C\#, Thread/Task thường cho kết quả tốt hơn Parallel.For nhờ kiểm soát trực tiếp phân chia dữ liệu. Bước scatter trong counting/radix sort khó song song hóa do yêu cầu stable sort.
+
+\end{document}

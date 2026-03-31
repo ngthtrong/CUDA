@@ -1,0 +1,14 @@
+C:\Users\jhiny\Desktop\mid\ss9\DotProductCS\bin\Release\net9.0\DotProductCS.exe
+C:\Users\jhiny\Desktop\mid\ss9\DotProductCS\bin\Release\net9.0\DotProductCS.deps.json
+C:\Users\jhiny\Desktop\mid\ss9\DotProductCS\bin\Release\net9.0\DotProductCS.runtimeconfig.json
+C:\Users\jhiny\Desktop\mid\ss9\DotProductCS\bin\Release\net9.0\DotProductCS.dll
+C:\Users\jhiny\Desktop\mid\ss9\DotProductCS\bin\Release\net9.0\DotProductCS.pdb
+C:\Users\jhiny\Desktop\mid\ss9\DotProductCS\obj\Release\net9.0\DotProductCS.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\jhiny\Desktop\mid\ss9\DotProductCS\obj\Release\net9.0\DotProductCS.AssemblyInfoInputs.cache
+C:\Users\jhiny\Desktop\mid\ss9\DotProductCS\obj\Release\net9.0\DotProductCS.AssemblyInfo.cs
+C:\Users\jhiny\Desktop\mid\ss9\DotProductCS\obj\Release\net9.0\DotProductCS.csproj.CoreCompileInputs.cache
+C:\Users\jhiny\Desktop\mid\ss9\DotProductCS\obj\Release\net9.0\DotProductCS.dll
+C:\Users\jhiny\Desktop\mid\ss9\DotProductCS\obj\Release\net9.0\refint\DotProductCS.dll
+C:\Users\jhiny\Desktop\mid\ss9\DotProductCS\obj\Release\net9.0\DotProductCS.pdb
+C:\Users\jhiny\Desktop\mid\ss9\DotProductCS\obj\Release\net9.0\DotProductCS.genruntimeconfig.cache
+C:\Users\jhiny\Desktop\mid\ss9\DotProductCS\obj\Release\net9.0\ref\DotProductCS.dll

@@ -1,0 +1,163 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[vietnamese]{babel}
+\usepackage{geometry}
+\geometry{left=2cm,right=2cm,top=2cm,bottom=2cm}
+\usepackage{graphicx}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{amsmath}
+\usepackage{hyperref}
+\usepackage{float}
+\usepackage{enumitem}
+\usepackage{array}
+
+\definecolor{codegreen}{rgb}{0,0.5,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.95}
+
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{blue},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\scriptsize,
+    breaklines=true,
+    numbers=left,
+    numbersep=5pt,
+    frame=single,
+    tabsize=4
+}
+\lstset{style=mystyle}
+
+\title{
+    \textbf{BÁO CÁO BÀI TẬP GIỮA KỲ} \\[0.3cm]
+    \large Cài đặt Thuật toán Song song với CUDA và C\# \\[0.5cm]
+    \normalsize Môn học: CT225H -- Parallel Programming with CUDA
+}
+\author{Nguyễn Thanh Trọng -- B2305615}
+\date{03/03/2026}
+
+\begin{document}
+\maketitle
+
+% ============================================================
+\section{Giới thiệu}
+% ============================================================
+Báo cáo trình bày việc cài đặt hai bài toán song song: \textbf{Tích vô hướng (Dot Product)} và \textbf{Chuyển vị Ma trận (Matrix Transpose)}, sử dụng 4 kỹ thuật: (1) CUDA trên GPU, (2) Thread/Task, (3) Parallel, và (4) Channel trong C\#. Mục tiêu là so sánh hiệu năng giữa các phương pháp tuần tự và song song.
+
+% ============================================================
+\section{Thiết kế thuật toán}
+% ============================================================
+
+\subsection{Bài toán 1 -- Tích vô hướng (Dot Product)}
+
+Cho hai vector $A, B$ có cùng kích thước $N = 1{,}000{,}000$. Tính:
+$$\text{Result} = \sum_{i=0}^{N-1} A_i \times B_i$$
+
+\textbf{CUDA:} Sử dụng mẫu \textbf{Parallel Reduction} với cấu hình:
+\begin{itemize}[nosep]
+    \item Block size: 256 threads, Grid: $\lceil N/256 \rceil = 3{,}907$ blocks
+    \item Mỗi thread tính tích $A_i \times B_i$ qua grid-stride loop, lưu vào shared memory
+    \item Reduction theo cây (tree-based) trong shared memory: mỗi bước stride giảm một nửa
+    \item Thread 0 của mỗi block dùng \texttt{atomicAdd} để cộng kết quả vào biến global
+\end{itemize}
+
+\textbf{C\# -- Thread/Task:} Chia vector thành $P$ chunks ($P$ = số CPU cores), mỗi Task tính partial sum riêng, sau đó cộng dồn.
+
+\textbf{C\# -- Parallel.For:} Sử dụng \texttt{Parallel.For} với \texttt{localInit/localFinally} để tổng hợp kết quả thread-safe.
+
+\textbf{C\# -- Channel:} Producer/Consumer pattern -- $P$ producer gửi partial sum vào \texttt{Channel<double>}, consumer đọc ra và cộng dồn.
+
+\subsection{Bài toán 2 -- Chuyển vị Ma trận (Matrix Transpose)}
+
+Cho ma trận $A$ kích thước $1024 \times 1024$. Tạo ma trận $A^T$ sao cho $A^T[j][i] = A[i][j]$.
+
+\textbf{CUDA -- Naive:} Mỗi thread đọc $A[i][j]$ (coalesced) và ghi vào $A^T[j][i]$ (non-coalesced).
+
+\textbf{CUDA -- Shared Memory (Optimized):} Sử dụng tile $32 \times 32$ trong shared memory (khai báo $32 \times 33$ để tránh bank conflict). Đọc coalesced vào shared memory, đổi chỉ số, ghi coalesced ra global memory.
+
+\textbf{C\# -- Thread/Task và Parallel.For:} Chia các hàng thành chunks, mỗi task/thread xử lý một nhóm hàng.
+
+% ============================================================
+\section{Kết quả thực nghiệm}
+% ============================================================
+
+\subsection{Môi trường thực nghiệm}
+\begin{itemize}[nosep]
+    \item \textbf{GPU:} NVIDIA Tesla T4 (Google Colab), CUDA 13.0, Driver 580.82.07
+    \item \textbf{CPU (C\#):} 12 logical cores, .NET Runtime (Release mode)
+\end{itemize}
+
+\subsection{Bài toán 1 -- Dot Product ($N = 1{,}000{,}000$)}
+
+\begin{table}[H]
+\centering
+\caption{So sánh hiệu năng Dot Product}
+\begin{tabular}{llrl}
+\toprule
+\textbf{Nền tảng} & \textbf{Phương pháp} & \textbf{Thời gian (ms)} & \textbf{Kết quả} \\
+\midrule
+GPU (CUDA)   & CPU Sequential     & 3.0210  & 244166.156250 \\
+GPU (CUDA)   & GPU Reduction      & 0.1928  & 244218.968750 \\
+\midrule
+C\#          & Sequential         & 10.7886 & 245005.259900 \\
+C\#          & Thread/Task (12T)  & 9.7187  & 245005.259900 \\
+C\#          & Parallel.For       & 21.9677 & 245005.259900 \\
+C\#          & Channel (12P)      & 10.3547 & 245005.259900 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Nhận xét:} GPU CUDA đạt speedup \textbf{15.67x} so với CPU (C). Sai số tuyệt đối giữa CPU và GPU là 52.81 (do tích lũy lỗi floating-point khi cộng dồn song song). Trong C\#, Thread/Task cho kết quả tốt nhất nhờ kiểm soát trực tiếp phân chia chunk.
+
+\subsection{Bài toán 2 -- Matrix Transpose ($1024 \times 1024$)}
+
+\begin{table}[H]
+\centering
+\caption{So sánh hiệu năng Matrix Transpose}
+\begin{tabular}{llrl}
+\toprule
+\textbf{Nền tảng} & \textbf{Phương pháp} & \textbf{Thời gian (ms)} & \textbf{Correct} \\
+\midrule
+GPU (CUDA)   & CPU Sequential         & 19.7390  & -- \\
+GPU (CUDA)   & GPU Naive              & 0.2270   & Yes \\
+GPU (CUDA)   & GPU Shared Memory      & 0.0619   & Yes \\
+\midrule
+C\#          & Sequential             & 8.4612   & Yes \\
+C\#          & Thread/Task (12T)      & 6.2578   & Yes \\
+C\#          & Parallel.For           & 9.6602   & Yes \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Nhận xét:}
+\begin{itemize}[nosep]
+    \item GPU Shared Memory đạt speedup \textbf{318.95x} so với CPU (C), và \textbf{3.67x} nhanh hơn GPU Naive.
+    \item Kỹ thuật shared memory tránh non-coalesced memory access, giảm bank conflict nhờ padding +1.
+    \item Trong C\#, Thread/Task đạt speedup 1.35x so với sequential.
+\end{itemize}
+
+% ============================================================
+\section{Khó khăn và Giải pháp}
+% ============================================================
+
+\begin{enumerate}[nosep]
+    \item \textbf{Sai số floating-point (CUDA Dot Product):} Phép cộng dồn song song qua \texttt{atomicAdd} thay đổi thứ tự cộng, dẫn đến sai số 52.81 giữa CPU và GPU. \textit{Giải pháp:} Chấp nhận sai số ở mức chấp nhận được cho kiểu \texttt{float} (32-bit), hoặc sử dụng \texttt{double} nếu cần độ chính xác cao hơn.
+
+    \item \textbf{Bank conflict (Shared Memory Transpose):} Truy cập shared memory theo cột gây bank conflict. \textit{Giải pháp:} Khai báo tile $32 \times 33$ (padding +1) để các thread truy cập khác bank.
+
+    \item \textbf{Overhead của Parallel.For (C\#):} Với bài toán đơn giản như dot product, chi phí quản lý partitioner và thread pool có thể lớn hơn lợi ích song song hóa. \textit{Giải pháp:} Sử dụng Thread/Task thủ công hoặc tăng kích thước dữ liệu.
+
+    \item \textbf{Đồng bộ hóa kết quả (Channel):} Pattern Channel phù hợp cho pipeline processing, nhưng với reduction đơn giản, overhead của async/await có thể làm giảm hiệu năng. \textit{Giải pháp:} Chọn pattern phù hợp với bài toán -- Channel tốt cho streaming data, Task tốt cho batch processing.
+\end{enumerate}
+
+% ============================================================
+\section*{Kết luận}
+% ============================================================
+CUDA GPU cho hiệu năng vượt trội (15--319x speedup) nhờ hàng nghìn thread chạy song song. Trong C\#, Thread/Task cho kết quả cân bằng giữa hiệu năng và độ phức tạp. Mỗi kỹ thuật (Thread/Task, Parallel, Channel, CUDA) phù hợp với các tình huống khác nhau trong lập trình song song.
+
+\end{document}

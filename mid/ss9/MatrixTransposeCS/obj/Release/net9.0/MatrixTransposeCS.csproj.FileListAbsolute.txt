@@ -1,0 +1,14 @@
+C:\Users\jhiny\Desktop\mid\ss9\MatrixTransposeCS\bin\Release\net9.0\MatrixTransposeCS.exe
+C:\Users\jhiny\Desktop\mid\ss9\MatrixTransposeCS\bin\Release\net9.0\MatrixTransposeCS.deps.json
+C:\Users\jhiny\Desktop\mid\ss9\MatrixTransposeCS\bin\Release\net9.0\MatrixTransposeCS.runtimeconfig.json
+C:\Users\jhiny\Desktop\mid\ss9\MatrixTransposeCS\bin\Release\net9.0\MatrixTransposeCS.dll
+C:\Users\jhiny\Desktop\mid\ss9\MatrixTransposeCS\bin\Release\net9.0\MatrixTransposeCS.pdb
+C:\Users\jhiny\Desktop\mid\ss9\MatrixTransposeCS\obj\Release\net9.0\MatrixTransposeCS.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\jhiny\Desktop\mid\ss9\MatrixTransposeCS\obj\Release\net9.0\MatrixTransposeCS.AssemblyInfoInputs.cache
+C:\Users\jhiny\Desktop\mid\ss9\MatrixTransposeCS\obj\Release\net9.0\MatrixTransposeCS.AssemblyInfo.cs
+C:\Users\jhiny\Desktop\mid\ss9\MatrixTransposeCS\obj\Release\net9.0\MatrixTransposeCS.csproj.CoreCompileInputs.cache
+C:\Users\jhiny\Desktop\mid\ss9\MatrixTransposeCS\obj\Release\net9.0\MatrixTransposeCS.dll
+C:\Users\jhiny\Desktop\mid\ss9\MatrixTransposeCS\obj\Release\net9.0\refint\MatrixTransposeCS.dll
+C:\Users\jhiny\Desktop\mid\ss9\MatrixTransposeCS\obj\Release\net9.0\MatrixTransposeCS.pdb
+C:\Users\jhiny\Desktop\mid\ss9\MatrixTransposeCS\obj\Release\net9.0\MatrixTransposeCS.genruntimeconfig.cache
+C:\Users\jhiny\Desktop\mid\ss9\MatrixTransposeCS\obj\Release\net9.0\ref\MatrixTransposeCS.dll

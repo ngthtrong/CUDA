@@ -1,0 +1,59 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.2.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ss9", "ss9", "{8184A193-6ABC-A9FA-BE8F-195C3B722DD7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CSharpParallel", "ss9\CSharpParallel\CSharpParallel.csproj", "{102C0FDD-1E44-983B-F2B5-4373B97AE383}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ss10", "ss10", "{651E3C21-66A0-9082-B130-7B5608E69571}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BFSSyncNetworkApp", "ss10\BFSSyncNetworkApp\BFSSyncNetworkApp.csproj", "{BAAD40D3-712A-4080-AA89-7F3AAB40C003}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
+		Release|Any CPU = Release|Any CPU
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{102C0FDD-1E44-983B-F2B5-4373B97AE383}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{102C0FDD-1E44-983B-F2B5-4373B97AE383}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{102C0FDD-1E44-983B-F2B5-4373B97AE383}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{102C0FDD-1E44-983B-F2B5-4373B97AE383}.Debug|x64.Build.0 = Debug|Any CPU
+		{102C0FDD-1E44-983B-F2B5-4373B97AE383}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{102C0FDD-1E44-983B-F2B5-4373B97AE383}.Debug|x86.Build.0 = Debug|Any CPU
+		{102C0FDD-1E44-983B-F2B5-4373B97AE383}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{102C0FDD-1E44-983B-F2B5-4373B97AE383}.Release|Any CPU.Build.0 = Release|Any CPU
+		{102C0FDD-1E44-983B-F2B5-4373B97AE383}.Release|x64.ActiveCfg = Release|Any CPU
+		{102C0FDD-1E44-983B-F2B5-4373B97AE383}.Release|x64.Build.0 = Release|Any CPU
+		{102C0FDD-1E44-983B-F2B5-4373B97AE383}.Release|x86.ActiveCfg = Release|Any CPU
+		{102C0FDD-1E44-983B-F2B5-4373B97AE383}.Release|x86.Build.0 = Release|Any CPU
+		{BAAD40D3-712A-4080-AA89-7F3AAB40C003}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BAAD40D3-712A-4080-AA89-7F3AAB40C003}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BAAD40D3-712A-4080-AA89-7F3AAB40C003}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{BAAD40D3-712A-4080-AA89-7F3AAB40C003}.Debug|x64.Build.0 = Debug|Any CPU
+		{BAAD40D3-712A-4080-AA89-7F3AAB40C003}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{BAAD40D3-712A-4080-AA89-7F3AAB40C003}.Debug|x86.Build.0 = Debug|Any CPU
+		{BAAD40D3-712A-4080-AA89-7F3AAB40C003}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BAAD40D3-712A-4080-AA89-7F3AAB40C003}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BAAD40D3-712A-4080-AA89-7F3AAB40C003}.Release|x64.ActiveCfg = Release|Any CPU
+		{BAAD40D3-712A-4080-AA89-7F3AAB40C003}.Release|x64.Build.0 = Release|Any CPU
+		{BAAD40D3-712A-4080-AA89-7F3AAB40C003}.Release|x86.ActiveCfg = Release|Any CPU
+		{BAAD40D3-712A-4080-AA89-7F3AAB40C003}.Release|x86.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{102C0FDD-1E44-983B-F2B5-4373B97AE383} = {8184A193-6ABC-A9FA-BE8F-195C3B722DD7}
+		{BAAD40D3-712A-4080-AA89-7F3AAB40C003} = {651E3C21-66A0-9082-B130-7B5608E69571}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {C61A4F3D-77D2-43CD-AB8B-AFF9CAF52193}
+	EndGlobalSection
+EndGlobal

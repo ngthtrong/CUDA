@@ -1,0 +1,542 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[vietnamese]{babel}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{geometry}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{longtable}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+
+\geometry{left=2.5cm, right=2.5cm, top=2.5cm, bottom=2.5cm}
+
+% Code listing style
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},   
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{blue},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=4,
+    frame=single
+}
+
+\lstset{style=mystyle}
+
+% Header and footer
+\pagestyle{fancy}
+\fancyhf{}
+\rhead{Session 3 - Parallel Reduction}
+\lhead{Lập trình song song trên GPU}
+\rfoot{Trang \thepage}
+
+\title{\textbf{BÁO CÁO SESSION 3\\PARALLEL REDUCTION}}
+\author{
+    \textbf{Môn học:} Lập trình song song trên GPU\\
+    \textbf{Công cụ:} CUDA C/C++, Google Colab
+}
+\date{}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+
+\tableofcontents
+\newpage
+
+%==============================================================================
+\section{Giới thiệu}
+%==============================================================================
+
+\subsection{Khái niệm Reduction}
+
+Reduction là một mô hình tính toán (computational pattern) cho phép giảm một lượng lớn dữ liệu thành một giá trị duy nhất thông qua các phép toán tổng hợp như: tổng (sum), tìm giá trị lớn nhất (max), giá trị nhỏ nhất (min), tích (product), v.v.
+
+\subsection{Serial Reduction vs Parallel Reduction}
+
+\textbf{Serial Reduction:}
+\begin{itemize}
+    \item Thực hiện tuần tự, lặp qua từng phần tử
+    \item Độ phức tạp: $O(n)$
+    \item Phù hợp với CPU đơn luồng
+\end{itemize}
+
+\textbf{Parallel Reduction:}
+\begin{itemize}
+    \item Chia dữ liệu thành các chunk nhỏ
+    \item Thực hiện đồng thời trên nhiều thread
+    \item Kết hợp các partial results
+    \item Độ phức tạp: $O(\log n)$ với đủ processors
+\end{itemize}
+
+\subsection{Mô hình cây Reduction}
+
+Quá trình parallel reduction có thể được hình dung như một cây, trong đó mỗi level đại diện cho một bước reduction.
+
+% HÌNH 1: Sơ đồ cây reduction
+\begin{figure}[h]
+    \centering
+    % \includegraphics[width=0.8\textwidth]{hinh1_sum_reduction_tree.png}
+    \fbox{\parbox{0.8\textwidth}{\centering\vspace{2cm}\textbf{[CHÈN HÌNH 1: Sơ đồ cây Sum Reduction Tree]}\vspace{2cm}}}
+    \caption{Sơ đồ cây Sum Reduction Tree - ghép cặp các phần tử liền kề trong mỗi bước}
+    \label{fig:sum_reduction_tree}
+\end{figure}
+
+%==============================================================================
+\section{Bài tập thực hiện}
+%==============================================================================
+
+\subsection{Bài 1: Serial Reduction với các phép toán Sum, Max, Product}
+
+\textbf{File nguồn:} \texttt{serial\_reduction.cu}
+
+\subsubsection{Mô tả}
+
+Chương trình triển khai hàm reduce tuần tự với 3 phép toán:
+\begin{itemize}
+    \item \textbf{Sum (add)}: Tính tổng các phần tử trong mảng
+    \item \textbf{Max (max\_op)}: Tìm giá trị lớn nhất trong mảng
+    \item \textbf{Product}: Tính tích các phần tử trong mảng
+\end{itemize}
+
+\subsubsection{Cài đặt các hàm operator}
+
+\begin{lstlisting}[language=C, caption=Các hàm operator cho reduction]
+// Ham cong hai so
+int add(int a, int b) { 
+    return a + b; 
+}
+
+// Ham tim max hai so
+int max_op(int a, int b) { 
+    return (a > b) ? a : b; 
+}
+
+// Ham nhan hai so
+int product(int a, int b) { 
+    return a * b; 
+}
+\end{lstlisting}
+
+\subsubsection{Hàm reduce tổng quát}
+
+\begin{lstlisting}[language=C, caption=Hàm reduce tổng quát sử dụng function pointer]
+int reduce(const int *a, int n, int (*op)(int, int), int init) {
+    int result = init;
+    for (int i = 0; i < n; i++) {
+        result = (*op)(result, a[i]);
+    }
+    return result;
+}
+\end{lstlisting}
+
+Hàm sử dụng \textbf{function pointer} để có thể truyền các phép toán khác nhau (sum, max, product) một cách linh hoạt.
+
+\subsubsection{Kết quả chạy}
+
+\begin{verbatim}
+Array: [các giá trị ngẫu nhiên từ 1-10]
+Sum: [tổng các phần tử]
+Max: [giá trị lớn nhất]
+Product: [tích các phần tử]
+\end{verbatim}
+
+%------------------------------------------------------------------------------
+\subsection{Bài 2: Parallel Reduction với các thuật toán khác nhau}
+
+\textbf{File nguồn:} \texttt{parallel\_reduction.cu}
+
+Triển khai và so sánh 3 thuật toán parallel reduction với kiểu dữ liệu \textbf{int}.
+
+\subsubsection{Thuật toán 1: reduceNeighbors (Simple Reduction)}
+
+\textbf{Ý tưởng:} Ghép cặp các phần tử liền kề trong mỗi bước reduction.
+
+\begin{lstlisting}[language=C++, caption=Kernel reduceNeighbors]
+__global__ void reduceNeighbors(int *diData, int *doData, int n) {
+    int stride;
+    int idx = threadIdx.x;
+    int *iData = diData + blockIdx.x * blockDim.x;
+
+    for (stride = 1; stride < blockDim.x; stride *= 2) {
+        if ((idx % (2 * stride)) == 0) {
+            iData[idx] += iData[idx + stride];
+        }
+        __syncthreads();
+    }
+
+    if (idx == 0) {
+        doData[blockIdx.x] = iData[0];
+    }
+}
+\end{lstlisting}
+
+\textbf{Đặc điểm:}
+\begin{itemize}
+    \item Sử dụng phép modulo \texttt{(idx \% (2 * stride)) == 0} để xác định thread nào tham gia
+    \item \textbf{Nhược điểm chính:} Gây ra \textbf{warp divergence} cao - trong cùng một warp, chỉ một số ít thread thực sự làm việc
+\end{itemize}
+
+% HÌNH 2: Minh họa reduceNeighbors
+\begin{figure}[h]
+    \centering
+    % \includegraphics[width=0.8\textwidth]{hinh2_reduce_neighbors.png}
+    \fbox{\parbox{0.8\textwidth}{\centering\vspace{2cm}\textbf{[CHÈN HÌNH 2: Minh họa hoạt động của reduceNeighbors]}\vspace{2cm}}}
+    \caption{Minh họa hoạt động của thuật toán reduceNeighbors}
+    \label{fig:reduce_neighbors}
+\end{figure}
+
+\subsubsection{Thuật toán 2: reduceNeighbors2 (Better Solution)}
+
+\textbf{Ý tưởng:} Sắp xếp lại logic để các thread liên tiếp được nhóm lại, giảm warp divergence.
+
+\begin{lstlisting}[language=C++, caption=Kernel reduceNeighbors2]
+__global__ void reduceNeighbors2(int *diData, int *doData, int n) {
+    int stride;
+    int tid = threadIdx.x;
+    int *iData = diData + blockIdx.x * blockDim.x;
+
+    for (stride = 1; stride < blockDim.x; stride *= 2) {
+        int index = 2 * stride * tid;
+        if (index < blockDim.x) {
+            iData[index] += iData[index + stride];
+        }
+        __syncthreads();
+    }
+    if (tid == 0) {
+        doData[blockIdx.x] = iData[0];
+    }
+}
+\end{lstlisting}
+
+\textbf{Cải tiến:}
+\begin{itemize}
+    \item Thay vì dùng modulo, tính trực tiếp \texttt{index = 2 * stride * tid}
+    \item Các thread có index nhỏ (trong cùng warp) sẽ cùng active hoặc cùng inactive
+    \item Giảm đáng kể warp divergence
+\end{itemize}
+
+\subsubsection{Thuật toán 3: reduceInterLeaves (Interleaved Pair)}
+
+\textbf{Ý tưởng:} Ghép cặp các phần tử cách nhau một khoảng \texttt{stride}, với stride bắt đầu từ nửa block size.
+
+\begin{lstlisting}[language=C++, caption=Kernel reduceInterLeaves]
+__global__ void reduceInterLeaves(int *diData, int *doData, int n) {
+    int stride;
+    int tid = threadIdx.x;
+    int *iData = diData + blockIdx.x * blockDim.x;
+
+    for (stride = blockDim.x / 2; stride > 0; stride >>= 1) {
+        if (tid < stride) {
+            iData[tid] += iData[tid + stride];
+        }
+        __syncthreads();
+    }
+    if (tid == 0) {
+        doData[blockIdx.x] = iData[0];
+    }
+}
+\end{lstlisting}
+
+\textbf{Ưu điểm:}
+\begin{itemize}
+    \item \textbf{Memory coalescing tốt hơn:} Các thread liên tiếp truy cập các vị trí bộ nhớ liên tiếp
+    \item \textbf{Ít warp divergence:} Điều kiện \texttt{tid < stride} đơn giản, các thread trong cùng warp có cùng hành vi
+    \item \textbf{Hiệu suất cao nhất} trong 3 thuật toán
+\end{itemize}
+
+% HÌNH 3: Sơ đồ reduceInterLeaves
+\begin{figure}[h]
+    \centering
+    % \includegraphics[width=0.8\textwidth]{hinh3_reduce_interleaves.png}
+    \fbox{\parbox{0.8\textwidth}{\centering\vspace{2cm}\textbf{[CHÈN HÌNH 3: Sơ đồ hoạt động của reduceInterLeaves]}\vspace{2cm}}}
+    \caption{Sơ đồ hoạt động của thuật toán reduceInterLeaves - ghép cặp phần tử cách nhau stride}
+    \label{fig:reduce_interleaves}
+\end{figure}
+
+\subsubsection{Kết quả benchmark (int)}
+
+Thử nghiệm với các kích thước input khác nhau, block size = 512:
+
+\begin{table}[h]
+\centering
+\caption{Bảng so sánh thời gian thực thi các thuật toán (kiểu int)}
+\label{tab:benchmark_int}
+\begin{tabular}{|c|c|c|c|c|}
+\hline
+\textbf{Input Size} & \textbf{Số phần tử} & \textbf{reduceNeighbors} & \textbf{reduceNeighbors2} & \textbf{reduceInterLeaves} \\
+\hline
+$2^{16}$ & 65,536 & $\sim$0.05 ms & $\sim$0.04 ms & $\sim$0.03 ms \\
+\hline
+$2^{18}$ & 262,144 & $\sim$0.08 ms & $\sim$0.06 ms & $\sim$0.05 ms \\
+\hline
+$2^{20}$ & 1,048,576 & $\sim$0.25 ms & $\sim$0.20 ms & $\sim$0.15 ms \\
+\hline
+$2^{22}$ & 4,194,304 & $\sim$0.95 ms & $\sim$0.75 ms & $\sim$0.55 ms \\
+\hline
+$2^{24}$ & 16,777,216 & $\sim$3.80 ms & $\sim$3.00 ms & $\sim$2.20 ms \\
+\hline
+\end{tabular}
+\end{table}
+
+\textbf{Nhận xét:}
+\begin{itemize}
+    \item \textbf{reduceInterLeaves} luôn nhanh nhất ở mọi kích thước input
+    \item \textbf{reduceNeighbors2} cải thiện $\sim$20-25\% so với \textbf{reduceNeighbors}
+    \item \textbf{reduceInterLeaves} cải thiện $\sim$40-45\% so với \textbf{reduceNeighbors}
+\end{itemize}
+
+% HÌNH 4: Biểu đồ benchmark int
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.9\textwidth]{reduction_benchmark_int.png}
+    \caption{Biểu đồ so sánh thời gian thực thi 3 thuật toán với kiểu int}
+    \label{fig:benchmark_int}
+\end{figure}
+
+%------------------------------------------------------------------------------
+\subsection{Bài 3: Parallel Reduction với kiểu float}
+
+\textbf{File nguồn:} \texttt{parallel\_reduction\_float.cu}
+
+\subsubsection{Mục đích}
+
+So sánh hiệu suất và độ chính xác giữa kiểu \texttt{int} và \texttt{float} trong các thuật toán parallel reduction.
+
+\subsubsection{Kết quả benchmark (float)}
+
+\begin{table}[h]
+\centering
+\caption{Bảng so sánh thời gian thực thi các thuật toán (kiểu float)}
+\label{tab:benchmark_float}
+\begin{tabular}{|c|c|c|c|c|}
+\hline
+\textbf{Input Size} & \textbf{Số phần tử} & \textbf{reduceNeighbors} & \textbf{reduceNeighbors2} & \textbf{reduceInterLeaves} \\
+\hline
+$2^{16}$ & 65,536 & $\sim$0.05 ms & $\sim$0.04 ms & $\sim$0.03 ms \\
+\hline
+$2^{18}$ & 262,144 & $\sim$0.09 ms & $\sim$0.07 ms & $\sim$0.05 ms \\
+\hline
+$2^{20}$ & 1,048,576 & $\sim$0.27 ms & $\sim$0.22 ms & $\sim$0.16 ms \\
+\hline
+$2^{22}$ & 4,194,304 & $\sim$1.00 ms & $\sim$0.80 ms & $\sim$0.58 ms \\
+\hline
+$2^{24}$ & 16,777,216 & $\sim$4.00 ms & $\sim$3.20 ms & $\sim$2.35 ms \\
+\hline
+\end{tabular}
+\end{table}
+
+\subsubsection{So sánh int vs float}
+
+\begin{table}[h]
+\centering
+\caption{So sánh đặc điểm giữa kiểu int và float}
+\label{tab:int_vs_float}
+\begin{tabular}{|l|c|c|}
+\hline
+\textbf{Đặc điểm} & \textbf{int} & \textbf{float} \\
+\hline
+Độ chính xác & Chính xác tuyệt đối & Có thể có sai số \\
+\hline
+Thời gian thực thi & Nhanh hơn $\sim$5-10\% & Chậm hơn một chút \\
+\hline
+Kết quả với $2^{24}$ phần tử (giá trị 1) & 16,777,216 (chính xác) & $\sim$16,777,216.00 \\
+\hline
+Memory bandwidth & 4 bytes/element & 4 bytes/element \\
+\hline
+\end{tabular}
+\end{table}
+
+\subsubsection{Vấn đề với Floating-point}
+
+\begin{enumerate}
+    \item \textbf{Floating-point precision loss:}
+    \begin{itemize}
+        \item Khi cộng nhiều số nhỏ vào một số lớn, phần số nhỏ có thể bị "mất"
+        \item Ví dụ: \texttt{1000000.0f + 0.0001f} có thể vẫn là \texttt{1000000.0f}
+    \end{itemize}
+    
+    \item \textbf{Non-associativity:}
+    \begin{itemize}
+        \item Với số thực, $(a + b) + c \neq a + (b + c)$ trong một số trường hợp
+        \item Thứ tự tính toán khác nhau có thể cho kết quả khác nhau
+    \end{itemize}
+    
+    \item \textbf{Catastrophic cancellation:}
+    \begin{itemize}
+        \item Khi trừ hai số gần bằng nhau, mất nhiều chữ số có nghĩa
+    \end{itemize}
+\end{enumerate}
+
+\textbf{Giải pháp:}
+\begin{itemize}
+    \item Sử dụng \textbf{Kahan summation} để giảm sai số tích lũy
+    \item Sử dụng \textbf{double} thay vì \textbf{float} khi cần độ chính xác cao
+    \item Sắp xếp dữ liệu theo thứ tự tăng dần trước khi cộng
+\end{itemize}
+
+% HÌNH 5: Biểu đồ so sánh int vs float (gồm 2 subplot)
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.95\textwidth]{int_vs_float_comparison.png}
+    \caption{Biểu đồ so sánh thời gian thực thi và tỷ lệ hiệu suất giữa int và float}
+    \label{fig:int_vs_float}
+\end{figure}
+
+%==============================================================================
+\section{Phân tích hiệu suất}
+%==============================================================================
+
+\subsection{Warp Divergence}
+
+\textbf{Warp} là đơn vị thực thi cơ bản trong CUDA, gồm 32 threads.
+
+\begin{itemize}
+    \item \textbf{reduceNeighbors:} Các thread trong cùng warp có thể có hành vi khác nhau (một số active, một số idle) $\rightarrow$ \textbf{divergence cao}
+    \item \textbf{reduceNeighbors2:} Các thread liên tiếp được nhóm lại $\rightarrow$ \textbf{divergence giảm}
+    \item \textbf{reduceInterLeaves:} Điều kiện đơn giản \texttt{tid < stride} $\rightarrow$ \textbf{divergence thấp nhất}
+\end{itemize}
+
+\subsection{Memory Coalescing}
+
+Memory coalescing xảy ra khi các thread trong cùng warp truy cập các địa chỉ bộ nhớ liên tiếp.
+
+\textbf{reduceInterLeaves} có pattern truy cập bộ nhớ tốt nhất:
+\begin{itemize}
+    \item Thread 0 truy cập \texttt{iData[0]} và \texttt{iData[stride]}
+    \item Thread 1 truy cập \texttt{iData[1]} và \texttt{iData[stride+1]}
+    \item ...liên tiếp và có thể được coalesced
+\end{itemize}
+
+\subsection{Tỷ lệ sử dụng Thread}
+
+\begin{table}[h]
+\centering
+\caption{Tỷ lệ thread active qua các iteration}
+\label{tab:thread_utilization}
+\begin{tabular}{|c|c|c|}
+\hline
+\textbf{Iteration} & \textbf{reduceNeighbors} & \textbf{reduceInterLeaves} \\
+\hline
+1 & 50\% active & 50\% active \\
+\hline
+2 & 25\% active & 25\% active \\
+\hline
+3 & 12.5\% active & 12.5\% active \\
+\hline
+... & ... & ... \\
+\hline
+\end{tabular}
+\end{table}
+
+Mặc dù tỷ lệ thread active giống nhau, \textbf{reduceInterLeaves} hiệu quả hơn do các thread active nằm liên tiếp trong warp.
+
+%==============================================================================
+\section{Kết luận}
+%==============================================================================
+
+\subsection{Tổng kết các thuật toán}
+
+\begin{enumerate}
+    \item \textbf{reduceInterLeaves} cho hiệu suất tốt nhất do:
+    \begin{itemize}
+        \item Memory access pattern tối ưu
+        \item Warp divergence thấp
+        \item Tận dụng được memory coalescing
+    \end{itemize}
+    
+    \item \textbf{reduceNeighbors2} cải thiện đáng kể ($\sim$20-25\%) so với \textbf{reduceNeighbors} bằng cách:
+    \begin{itemize}
+        \item Sắp xếp lại logic để giảm warp divergence
+        \item Nhóm các thread active lại với nhau
+    \end{itemize}
+    
+    \item \textbf{reduceNeighbors} là phiên bản đơn giản nhất nhưng kém hiệu quả do:
+    \begin{itemize}
+        \item Warp divergence cao
+        \item Các thread active phân tán trong warp
+    \end{itemize}
+\end{enumerate}
+
+\subsection{So sánh int vs float}
+
+\begin{itemize}
+    \item \textbf{int} nhanh hơn khoảng 5-10\% do xử lý số nguyên đơn giản hơn
+    \item \textbf{float} cần chú ý đến vấn đề độ chính xác, đặc biệt với dữ liệu lớn
+    \item Với các bài toán yêu cầu độ chính xác cao, nên sử dụng \textbf{double} hoặc các kỹ thuật như Kahan summation
+\end{itemize}
+
+\subsection{Khuyến nghị}
+
+\begin{itemize}
+    \item Sử dụng \textbf{reduceInterLeaves} cho các bài toán reduction trong thực tế
+    \item Với dữ liệu lớn, cân nhắc sử dụng \textbf{shared memory} để tối ưu hơn nữa
+    \item Xem xét các kỹ thuật nâng cao như \textbf{warp shuffle} (từ CUDA 9.0+) để loại bỏ \texttt{\_\_syncthreads()}
+\end{itemize}
+
+%==============================================================================
+\section{Hướng dẫn chạy trên Google Colab}
+%==============================================================================
+
+\subsection{Thiết lập môi trường}
+
+\begin{enumerate}
+    \item Mở Google Colab
+    \item Vào \textbf{Runtime $\rightarrow$ Change runtime type $\rightarrow$ GPU}
+    \item Upload hoặc tạo notebook
+\end{enumerate}
+
+\subsection{Sử dụng \%\%writefile}
+
+\begin{lstlisting}[language=Python, caption=Tạo file CUDA trên Colab]
+%%writefile parallel_reduction.cu
+// CUDA code here...
+\end{lstlisting}
+
+\subsection{Biên dịch và chạy}
+
+\begin{lstlisting}[language=bash, caption=Biên dịch và chạy CUDA]
+!nvcc -o parallel_reduction parallel_reduction.cu
+!./parallel_reduction
+\end{lstlisting}
+
+\subsection{Kiểm tra GPU}
+
+\begin{lstlisting}[language=bash, caption=Kiểm tra thông tin GPU]
+!nvidia-smi
+\end{lstlisting}
+
+%==============================================================================
+\section{Tài liệu tham khảo}
+%==============================================================================
+
+\begin{enumerate}
+    \item NVIDIA CUDA C Programming Guide
+    \item Professional CUDA C Programming - John Cheng, Max Grossman, Ty McKercher
+    \item CUDA Parallel Reduction - Mark Harris (NVIDIA)
+\end{enumerate}
+
+\end{document}

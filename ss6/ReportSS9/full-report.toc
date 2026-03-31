@@ -1,0 +1,22 @@
+\babel@toc {vietnamese}{}\relax 
+\contentsline {section}{\numberline {1}Giới thiệu}{2}{section.1}%
+\contentsline {subsection}{\numberline {1.1}Mục tiêu}{2}{subsection.1.1}%
+\contentsline {subsection}{\numberline {1.2}Nền tảng lý thuyết}{2}{subsection.1.2}%
+\contentsline {section}{\numberline {2}Môi trường thực nghiệm}{2}{section.2}%
+\contentsline {section}{\numberline {3}Bài toán 1: Tích vô hướng (Dot Product)}{3}{section.3}%
+\contentsline {subsection}{\numberline {3.1}Mô tả bài toán}{3}{subsection.3.1}%
+\contentsline {subsection}{\numberline {3.2}Thiết kế thuật toán -- CUDA Parallel Reduction}{3}{subsection.3.2}%
+\contentsline {subsection}{\numberline {3.3}Mã nguồn CUDA -- Dot Product}{3}{subsection.3.3}%
+\contentsline {subsection}{\numberline {3.4}Mã nguồn C\# -- Dot Product}{4}{subsection.3.4}%
+\contentsline {subsection}{\numberline {3.5}Kết quả thực thi -- Dot Product}{5}{subsection.3.5}%
+\contentsline {section}{\numberline {4}Bài toán 2: Chuyển vị Ma trận (Matrix Transpose)}{6}{section.4}%
+\contentsline {subsection}{\numberline {4.1}Mô tả bài toán}{6}{subsection.4.1}%
+\contentsline {subsection}{\numberline {4.2}Thiết kế thuật toán -- CUDA}{6}{subsection.4.2}%
+\contentsline {subsection}{\numberline {4.3}Mã nguồn CUDA -- Matrix Transpose}{7}{subsection.4.3}%
+\contentsline {subsection}{\numberline {4.4}Mã nguồn C\# -- Matrix Transpose}{7}{subsection.4.4}%
+\contentsline {subsection}{\numberline {4.5}Kết quả thực thi -- Matrix Transpose}{8}{subsection.4.5}%
+\contentsline {section}{\numberline {5}Phân tích và Thảo luận}{9}{section.5}%
+\contentsline {subsection}{\numberline {5.1}So sánh tổng thể giữa các kỹ thuật}{9}{subsection.5.1}%
+\contentsline {subsection}{\numberline {5.2}Phân tích chi tiết}{10}{subsection.5.2}%
+\contentsline {section}{\numberline {6}Khó khăn và Giải pháp}{10}{section.6}%
+\contentsline {section}{\numberline {7}Kết luận}{10}{section.7}%

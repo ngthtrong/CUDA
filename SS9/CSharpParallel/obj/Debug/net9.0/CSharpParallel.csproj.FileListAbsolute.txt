@@ -1,0 +1,14 @@
+C:\Users\jhiny\Desktop\CUDA\SS9\CSharpParallel\bin\Debug\net9.0\CSharpParallel.exe
+C:\Users\jhiny\Desktop\CUDA\SS9\CSharpParallel\bin\Debug\net9.0\CSharpParallel.deps.json
+C:\Users\jhiny\Desktop\CUDA\SS9\CSharpParallel\bin\Debug\net9.0\CSharpParallel.runtimeconfig.json
+C:\Users\jhiny\Desktop\CUDA\SS9\CSharpParallel\bin\Debug\net9.0\CSharpParallel.dll
+C:\Users\jhiny\Desktop\CUDA\SS9\CSharpParallel\bin\Debug\net9.0\CSharpParallel.pdb
+C:\Users\jhiny\Desktop\CUDA\SS9\CSharpParallel\obj\Debug\net9.0\CSharpParallel.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\jhiny\Desktop\CUDA\SS9\CSharpParallel\obj\Debug\net9.0\CSharpParallel.AssemblyInfoInputs.cache
+C:\Users\jhiny\Desktop\CUDA\SS9\CSharpParallel\obj\Debug\net9.0\CSharpParallel.AssemblyInfo.cs
+C:\Users\jhiny\Desktop\CUDA\SS9\CSharpParallel\obj\Debug\net9.0\CSharpParallel.csproj.CoreCompileInputs.cache
+C:\Users\jhiny\Desktop\CUDA\SS9\CSharpParallel\obj\Debug\net9.0\CSharpParallel.dll
+C:\Users\jhiny\Desktop\CUDA\SS9\CSharpParallel\obj\Debug\net9.0\refint\CSharpParallel.dll
+C:\Users\jhiny\Desktop\CUDA\SS9\CSharpParallel\obj\Debug\net9.0\CSharpParallel.pdb
+C:\Users\jhiny\Desktop\CUDA\SS9\CSharpParallel\obj\Debug\net9.0\CSharpParallel.genruntimeconfig.cache
+C:\Users\jhiny\Desktop\CUDA\SS9\CSharpParallel\obj\Debug\net9.0\ref\CSharpParallel.dll

@@ -1,0 +1,189 @@
+    \documentclass{article}
+    \usepackage{geometry}
+    \usepackage[utf8]{vietnam}
+    \usepackage{amsmath}
+    \usepackage{graphicx}
+    \usepackage{booktabs}
+    \usepackage{makecell}
+    \usepackage{longtable}
+    \usepackage{listings}
+    \usepackage{xcolor}
+    \usepackage{hyperref}
+
+
+    % Cấu hình listings cho code
+    \lstset{
+        basicstyle=\ttfamily\small,
+        breaklines=true,
+        frame=single,
+        numbers=left,
+        numberstyle=\tiny,
+        keywordstyle=\color{blue},
+        commentstyle=\color{green!50!black},
+        stringstyle=\color{red}
+    }
+
+    \title{\textbf{BÁO CÁO THỰC HÀNH: \\ LẬP TRÌNH SONG SONG VỚI CUDA}}
+    \author{
+        \textbf{Chủ đề:} Tối ưu hóa cấu hình Grid/Block cho bài toán Cộng Vector và Cộng Ma trận \\[0.3cm]
+        \textbf{Họ tên:} Nguyễn Thanh Trọng \\
+        \textbf{MSSV:} B2305615 \\
+        \textbf{Ngày thực hiện:} 06/01/2026
+    }
+    \date{}
+
+    \begin{document}
+
+    \maketitle
+    \thispagestyle{empty}
+
+    \section{Giới thiệu chung}
+
+    \subsection{Mục tiêu}
+
+    Báo cáo này trình bày kết quả thực nghiệm việc triển khai lại hai bài toán cơ bản trong lập trình CUDA:
+
+    \begin{enumerate}
+        \item \textbf{Vector Sum (Cộng Vector):} Tính tổng hai mảng 1 chiều lớn.
+        \item \textbf{Matrix Sum (Cộng Ma trận):} Tính tổng hai ma trận 2 chiều.
+    \end{enumerate}
+
+    Mục tiêu chính là khảo sát ảnh hưởng của các cấu hình phân luồng (Grid/Block dimensions) khác nhau đến thời gian thực thi (Kernel Execution Time) trên GPU NVIDIA RTX 2060 Super.
+
+    \subsection{Cơ sở lý thuyết}
+
+    \begin{itemize}
+        \item \textbf{Mô hình SIMT:} GPU thực thi các lệnh theo nhóm thread gọi là Warp (kích thước chuẩn là 32 threads trên kiến trúc NVIDIA).
+        \item \textbf{Occupancy:} Hiệu suất phụ thuộc vào khả năng che giấu độ trễ bộ nhớ (memory latency hiding) bằng cách duy trì đủ số lượng warp hoạt động trên mỗi Streaming Multiprocessor (SM).
+    \end{itemize}
+
+    \section{Môi trường thực nghiệm}
+
+    Để đảm bảo tính nhất quán, thực nghiệm được tiến hành trên nền tảng đám mây LeetGPU với cấu hình sau:
+
+    \begin{itemize}
+        \item \textbf{Phần cứng (GPU):} NVIDIA GeForce RTX 2060 Super
+        \begin{itemize}
+            \item \textbf{Kiến trúc:} Turing
+            \item \textbf{Số nhân CUDA:} 2176 Cores
+            \item \textbf{Bộ nhớ VRAM:} 8 GB GDDR6
+            \item \textbf{Bus Width:} 256-bit (Ảnh hưởng lớn đến tốc độ truyền tải dữ liệu).
+        \end{itemize}
+        \item \textbf{Phần mềm:}
+        \begin{itemize}
+            \item \textbf{OS:} Ubuntu 22.04 LTS (Container Environment)
+            \item \textbf{CUDA Toolkit:} Version 12.8.0
+            \item \textbf{Compiler:} nvcc
+        \end{itemize}
+    \end{itemize}
+
+    \section{Bài toán 1: Cộng Vector (Vector Sum)}
+
+    \subsection{Thiết lập bài toán}
+
+    \begin{itemize}
+        \item \textbf{Kích thước Vector ($N$):} $2^{24} = 16{,}777{,}216$ phần tử (tương đương khoảng 64MB dữ liệu mỗi vector).
+        \item \textbf{Công thức Kernel:} \lstinline|int i = blockIdx.x * blockDim.x + threadIdx.x;|
+        \item \textbf{Grid Size:} Được tính tự động theo công thức \lstinline|(N + blockDim.x - 1) / blockDim.x|.
+    \end{itemize}
+
+    \subsection{Kết quả thực nghiệm}
+
+    Dưới đây là bảng so sánh thời gian thực thi kernel (đã loại bỏ thời gian copy dữ liệu Host-to-Device) với các kích thước Block khác nhau.
+
+    \textit{Đơn vị: mili-giây (ms)}
+
+    \begin{table}[h!]
+    \centering
+    \small
+    \begin{tabular}{ccccp{6cm}}
+    \toprule
+    \textbf{STT} & \makecell{\textbf{Cấu hình} \\ \textbf{(Threads/Block)}} & \makecell{\textbf{Grid Size} \\ \textbf{(Blocks)}} & \makecell{\textbf{Thời gian Kernel} \\ \textbf{(ms)}} & \makecell{\textbf{Nhận xét} \\ \textbf{hiệu năng}} \\
+    \midrule
+    1 & \textbf{32} (1 Warp) & 524,288 & 4183.55 ms & \textbf{Chậm nhất.} Overhead quản lý block quá lớn, occupancy thấp. \\
+    2 & \textbf{128} (4 Warps) & 131,072 & 3882.84 ms & Hiệu năng có cải thiện. \\
+    3 & \textbf{256} (8 Warps) & 65,536 & \textbf{3307.27 ms} & \textbf{Tối ưu nhất.} Cân bằng tốt giữa số block và số warp. \\
+    4 & \textbf{512} (16 Warps) & 32,768 & 3394.46 ms & Tương đương 256, chênh lệch không đáng kể. \\
+    5 & \textbf{1024} (32 Warps) & 16,384 & 3771.71 ms & Hơi chậm lại do giảm tính linh hoạt trong lập lịch block. \\
+    \bottomrule
+    \end{tabular}
+    \caption{Kết quả thực nghiệm Vector Sum với các cấu hình Block khác nhau}
+    \end{table}
+
+    \subsection{Phân tích}
+
+    \begin{itemize}
+        \item \textbf{Cấu hình Block = 32:} Hiệu năng rất tệ vì mỗi block chỉ có 1 warp. Khi warp này đợi truy cập bộ nhớ toàn cục (Global Memory), phần cứng không có warp nào khác trong cùng block để chuyển sang thực thi, dẫn đến lãng phí tài nguyên tính toán.
+        \item \textbf{Cấu hình Block = 256:} Đây là ``điểm ngọt'' (sweet spot) cho RTX 2060 Super. Số lượng threads đủ lớn để che giấu độ trễ bộ nhớ, nhưng cũng tạo ra đủ số lượng blocks để phân phối đều cho 34 SM (Streaming Multiprocessors) của GPU này.
+    \end{itemize}
+
+    \section{Bài toán 2: Cộng Ma trận (Matrix Sum)}
+
+    \subsection{Thiết lập bài toán}
+
+    \begin{itemize}
+        \item \textbf{Kích thước Ma trận:} $4096 \times 4096$ ($M \times N$). Tổng số phần tử: $\approx 16.7$ triệu (tương đương bài toán Vector).
+        \item \textbf{Ánh xạ mảng:} Ma trận 2D được trải phẳng (flatten) thành mảng 1D trong bộ nhớ.
+        \item \textbf{Công thức Index:} \lstinline|idx = (threadIdx.y + blockIdx.y * blockDim.y) * Width + (threadIdx.x + blockIdx.x * blockDim.x);|
+    \end{itemize}
+
+    \subsection{Kết quả thực nghiệm}
+
+    Thay đổi kích thước \lstinline|blockDim| theo 2 chiều (x, y).
+
+    \begin{table}[h!]
+    \centering
+    \small
+    \begin{tabular}{cccccp{5.5cm}}
+    \toprule
+    \textbf{STT} & \makecell{\textbf{Cấu hình Block} \\ \textbf{(x, y)}} & \makecell{\textbf{Tổng} \\ \textbf{Threads}} & \makecell{\textbf{Grid Size} \\ \textbf{(x, y)}} & \makecell{\textbf{Thời gian} \\ \textbf{(ms)}} & \textbf{Nhận xét} \\
+    \midrule
+    1 & \textbf{8 x 8} & 64 & 512 x 512 & 9706.36 ms & Chậm. Block size quá nhỏ. \\
+    2 & \textbf{16 x 16} & 256 & 256 x 256 & \textbf{6874.49 ms} & \textbf{Rất tốt.} Đạt hiệu năng tương đương Vector Sum tối ưu. \\
+    3 & \textbf{32 x 32} & 1024 & 128 x 128 & 7375.5 ms & Khá tốt, nhưng max threads/block làm giảm occupancy lý thuyết. \\
+    4 & \textbf{32 x 8} & 256 & 128 x 512 & \textbf{6470.51 ms} & \textbf{Tối ưu nhất.} Warp (32 threads) được căn chỉnh hoàn hảo. \\
+    5 & \textbf{8 x 32} & 256 & 512 x 128 & 8996.50 ms & \textbf{Kém.} Do vấn đề \textit{Memory Coalescing}. \\
+    \bottomrule
+    \end{tabular}
+    \caption{Kết quả thực nghiệm Matrix Sum với các cấu hình Block khác nhau}
+    \end{table}
+
+    \subsection{Phân tích chuyên sâu}
+
+    \textbf{Tại sao 32x8 nhanh hơn 8x32 dù cùng số thread?}
+
+    \begin{itemize}
+        \item Trong CUDA, các thread trong một Warp (32 threads liên tiếp) truy cập bộ nhớ tốt nhất khi chúng đọc các địa chỉ bộ nhớ liền kề nhau (Memory Coalescing).
+        \item \textbf{Cấu hình 32x8:} \lstinline|threadIdx.x| biến thiên nhanh nhất (từ 0 đến 31). Điều này khớp với việc dữ liệu ma trận được lưu trữ theo hàng (Row-major). 32 threads đọc 32 số float liên tiếp $\rightarrow$ \textbf{1 giao dịch bộ nhớ.}
+        \item \textbf{Cấu hình 8x32:} \lstinline|threadIdx.x| chỉ chạy từ 0 đến 7. Một Warp sẽ bị ngắt quãng dòng dữ liệu, dẫn đến việc bộ điều khiển bộ nhớ phải thực hiện nhiều giao dịch lẻ tẻ để lấy dữ liệu $\rightarrow$ \textbf{Băng thông giảm sút nghiêm trọng.}
+    \end{itemize}
+
+    \section{Kết luận và Kiến nghị}
+
+    \subsection{Kết luận chung}
+
+    Từ kết quả thực nghiệm trên RTX 2060 Super với CUDA 12.8, ta rút ra các kết luận sau:
+
+    \begin{enumerate}
+        \item \textbf{Block Size không nên quá nhỏ:} Kích thước dưới 128 threads thường dẫn đến hiệu suất kém do không tận dụng hết khả năng che giấu độ trễ của GPU.
+        \item \textbf{Block Size không nên quá lớn:} 1024 threads (tối đa) không phải lúc nào cũng tốt nhất do giới hạn về thanh ghi (registers) và bộ nhớ chia sẻ (shared memory) trên mỗi SM.
+        \item \textbf{Vấn đề chiều của Block (Dimension):} Đối với xử lý dữ liệu 2D/Ma trận, chiều \lstinline|x| của block (\lstinline|blockDim.x|) nên là bội số của 32 (Warp size) để tối ưu hóa truy cập bộ nhớ (Memory Coalescing).
+    \end{enumerate}
+
+    \subsection{Cấu hình khuyến nghị cho RTX 2060 Super}
+
+    \begin{itemize}
+        \item \textbf{Bài toán Vector 1D:} Sử dụng \lstinline|blockDim.x = 256| hoặc \lstinline|512|.
+        \item \textbf{Bài toán Ma trận 2D:} Sử dụng \lstinline|blockDim(32, 8)| hoặc \lstinline|blockDim(32, 16)|. Tránh các cấu hình có chiều \lstinline|x| nhỏ hơn 16.
+    \end{itemize}
+
+    \section{Tài liệu tham khảo}
+
+    \begin{enumerate}
+        \item \textbf{NVIDIA Corporation.} \textit{CUDA C++ Programming Guide}. [Online]. Available: \url{https://docs.nvidia.com/cuda/cuda-c-programming-guide/}
+        \item \textbf{Cheng, J., Grossman, M., \& McKercher, T.} (2014). \textit{Professional CUDA C Programming}. Wrox.
+        \item \textbf{Tài liệu bài giảng môn học.} (Các ví dụ Example 2 - Slide 17, Timer - Slide 21).
+        \item \textbf{Sanders, J., \& Kandrot, E.} (2010). \textit{CUDA by Example: An Introduction to General-Purpose GPU Programming}. Addison-Wesley Professional.
+    \end{enumerate}
+
+    \end{document}

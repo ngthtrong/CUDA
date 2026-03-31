@@ -1,0 +1,24 @@
+\babel@toc {vietnamese}{}\relax 
+\contentsline {section}{\numberline {1}Tổng quan}{2}{section.1}%
+\contentsline {section}{\numberline {2}Sơ đồ tổng quan khái niệm}{2}{section.2}%
+\contentsline {section}{\numberline {3}Bài toán 1: Tích vô hướng (Dot Product)}{2}{section.3}%
+\contentsline {subsection}{\numberline {3.1}Thiết kế thuật toán}{2}{subsection.3.1}%
+\contentsline {subsection}{\numberline {3.2}Sơ đồ DAG -- Parallel Reduction}{3}{subsection.3.2}%
+\contentsline {subsection}{\numberline {3.3}Mã nguồn CUDA -- Dot Product Kernel}{3}{subsection.3.3}%
+\contentsline {subsection}{\numberline {3.4}Mã nguồn C\# -- Dot Product}{3}{subsection.3.4}%
+\contentsline {section}{\numberline {4}Bài toán 2: Chuyển vị ma trận (Matrix Transpose)}{4}{section.4}%
+\contentsline {subsection}{\numberline {4.1}Thiết kế thuật toán}{4}{subsection.4.1}%
+\contentsline {subsection}{\numberline {4.2}Sơ đồ so sánh Naive vs Shared Memory}{4}{subsection.4.2}%
+\contentsline {subsection}{\numberline {4.3}Mã nguồn CUDA -- Shared Memory Transpose}{5}{subsection.4.3}%
+\contentsline {subsection}{\numberline {4.4}Mã nguồn C\# -- Matrix Transpose}{5}{subsection.4.4}%
+\contentsline {section}{\numberline {5}Kết quả thực thi}{5}{section.5}%
+\contentsline {subsection}{\numberline {5.1}C\# -- Dot Product}{5}{subsection.5.1}%
+\contentsline {subsection}{\numberline {5.2}C\# -- Matrix Transpose}{6}{subsection.5.2}%
+\contentsline {subsection}{\numberline {5.3}CUDA (Google Colab -- Tesla T4)}{6}{subsection.5.3}%
+\contentsline {section}{\numberline {6}Bảng so sánh hiệu năng}{7}{section.6}%
+\contentsline {section}{\numberline {7}Biểu đồ so sánh}{7}{section.7}%
+\contentsline {section}{\numberline {8}Phân tích và thảo luận}{8}{section.8}%
+\contentsline {subsection}{\numberline {8.1}Dot Product}{8}{subsection.8.1}%
+\contentsline {subsection}{\numberline {8.2}Matrix Transpose}{8}{subsection.8.2}%
+\contentsline {section}{\numberline {9}Khó khăn và Giải pháp}{9}{section.9}%
+\contentsline {section}{\numberline {10}Kết luận}{9}{section.10}%

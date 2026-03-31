@@ -1,0 +1,20 @@
+\babel@toc {vietnamese}{}\relax 
+\contentsline {section}{\numberline {1}Giới thiệu}{2}{section.1}%
+\contentsline {subsection}{\numberline {1.1}Bài toán}{2}{subsection.1.1}%
+\contentsline {subsection}{\numberline {1.2}Mục tiêu thực hiện}{2}{subsection.1.2}%
+\contentsline {section}{\numberline {2}Thiết kế dữ liệu và mô hình}{2}{section.2}%
+\contentsline {subsection}{\numberline {2.1}Đầu vào JSON}{2}{subsection.2.1}%
+\contentsline {subsection}{\numberline {2.2}Biểu diễn đồ thị trên GPU}{3}{subsection.2.2}%
+\contentsline {section}{\numberline {3}Thuật toán BFS synchronous}{3}{section.3}%
+\contentsline {subsection}{\numberline {3.1}CPU baseline}{3}{subsection.3.1}%
+\contentsline {subsection}{\numberline {3.2}GPU CUDA}{3}{subsection.3.2}%
+\contentsline {subsection}{\numberline {3.3}Pseudo-code}{3}{subsection.3.3}%
+\contentsline {section}{\numberline {4}Notebook triển khai}{4}{section.4}%
+\contentsline {section}{\numberline {5}Kết quả và phân tích}{4}{section.5}%
+\contentsline {subsection}{\numberline {5.1}Các chỉ số theo dõi}{4}{subsection.5.1}%
+\contentsline {subsection}{\numberline {5.2}Nhận xét tổng quan}{5}{subsection.5.2}%
+\contentsline {section}{\numberline {6}Hạn chế và hướng cải tiến}{5}{section.6}%
+\contentsline {subsection}{\numberline {6.1}Hạn chế hiện tại}{5}{subsection.6.1}%
+\contentsline {subsection}{\numberline {6.2}Hướng mở rộng}{5}{subsection.6.2}%
+\contentsline {section}{\numberline {7}Kết luận}{5}{section.7}%
+\contentsline {section}{\numberline {8}Tài liệu tham khảo}{5}{section.8}%

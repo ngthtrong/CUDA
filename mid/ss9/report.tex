@@ -1,0 +1,227 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[vietnamese]{babel}
+\usepackage[margin=2cm]{geometry}
+\usepackage{graphicx}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{amsmath,amssymb}
+\usepackage{hyperref}
+\usepackage{float}
+\usepackage{enumitem}
+\usepackage{array}
+\usepackage{fancyhdr}
+\usepackage{caption}
+\usepackage{tcolorbox}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\usetikzlibrary{arrows.meta,positioning,calc}
+
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{CT225H}
+\rhead{Midterm}
+\cfoot{\thepage}
+
+\definecolor{codebg}{RGB}{245,245,245}
+\definecolor{codegreen}{RGB}{0,128,0}
+\definecolor{codepurple}{RGB}{128,0,128}
+\definecolor{codegray}{RGB}{100,100,100}
+
+\lstdefinestyle{cudastyle}{
+    backgroundcolor=\color{codebg},
+    basicstyle=\ttfamily\scriptsize,
+    keywordstyle=\color{blue}\bfseries,
+    commentstyle=\color{codegreen}\itshape,
+    stringstyle=\color{red},
+    numbers=left,
+    numberstyle=\tiny\color{codegray},
+    breaklines=true,
+    frame=single,
+    morekeywords={__global__,__shared__,__device__,__syncthreads,cudaMalloc,cudaMemcpy,cudaFree,blockIdx,threadIdx,blockDim,gridDim}
+}
+
+\lstdefinestyle{csharpstyle}{
+    backgroundcolor=\color{codebg},
+    basicstyle=\ttfamily\scriptsize,
+    keywordstyle=\color{codepurple}\bfseries,
+    commentstyle=\color{codegreen}\itshape,
+    stringstyle=\color{red},
+    numbers=left,
+    numberstyle=\tiny\color{codegray},
+    breaklines=true,
+    frame=single,
+    language=[Sharp]C,
+    morekeywords={async,await,var,Channel,Task}
+}
+
+\title{\textbf{Midterm: Parallel Algorithms} \\ Dot Product \& Matrix Transpose}
+\author{Nguyễn Thanh Trọng -- B2305615 \\ CT225H -- Parallel Programming with CUDA}
+\date{}
+
+\begin{document}
+\maketitle
+\thispagestyle{fancy}
+
+%========================================
+\section{Thiết kế thuật toán}
+%========================================
+
+\subsection{Bài toán 1: Tích vô hướng (Dot Product)}
+Cho hai vector $A$, $B$ kích thước $N = 1{,}000{,}000$. Tính $\text{Result} = \sum_{i=0}^{N-1} A_i \times B_i$.
+
+\textbf{CUDA -- Parallel Reduction:} Mỗi thread tính $A[i] \times B[i]$, lưu vào shared memory. Thực hiện parallel reduction theo cây nhị phân ($\log_2(256) = 8$ bước) trong từng block (\texttt{BLOCK\_SIZE=256}, \texttt{numBlocks=3907}). Thread 0 ghi block sum ra global memory, host tổng hợp.
+
+\textbf{C\# Thread/Task:} Chia vector thành $P$ chunks ($P$ = \texttt{ProcessorCount}), mỗi Task tính partial sum, kết quả tổng hợp tuần tự.
+
+\textbf{C\# Channel:} Partial sums gửi qua \texttt{Channel<double>}, consumer đọc và cộng dồn (producer-consumer pattern).
+
+\subsection{Bài toán 2: Chuyển vị ma trận ($1024 \times 2048$)}
+Tính $A^T$ sao cho $A^T[j][i] = A[i][j]$.
+
+\textbf{CUDA Naive:} Mỗi thread đọc $A[y][x]$ ghi $B[x][y]$ -- coalesced reads nhưng uncoalesced writes.
+
+\textbf{CUDA Shared Memory:} Tile $32 \times 32$ với padding (+1 tránh bank conflicts). Đọc coalesced vào shared memory, ghi coalesced ra output. Grid: $(64, 32)$, Block: $(32, 8)$.
+
+\textbf{C\# Thread/Task \& Channel:} Tương tự bài 1, chia rows thành $P$ chunks.
+
+\subsection{Sơ đồ DAG -- Parallel Reduction (Dot Product)}
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+    node distance=0.5cm and 0.6cm,
+    every node/.style={draw,rounded corners,minimum width=0.6cm,minimum height=0.4cm,font=\tiny,fill=blue!10},
+    arr/.style={-{Stealth},thick}
+]
+\node (a0) {$a_0 b_0$};
+\node[right=of a0] (a1) {$a_1 b_1$};
+\node[right=of a1] (a2) {$a_2 b_2$};
+\node[right=of a2] (a3) {$a_3 b_3$};
+\node[right=of a3] (a4) {$a_4 b_4$};
+\node[right=of a4] (a5) {$a_5 b_5$};
+\node[right=of a5] (a6) {$a_6 b_6$};
+\node[right=of a6] (a7) {$a_7 b_7$};
+\node[below=0.7cm of $(a0)!0.5!(a1)$,fill=green!15] (s01) {$+$};
+\node[below=0.7cm of $(a2)!0.5!(a3)$,fill=green!15] (s23) {$+$};
+\node[below=0.7cm of $(a4)!0.5!(a5)$,fill=green!15] (s45) {$+$};
+\node[below=0.7cm of $(a6)!0.5!(a7)$,fill=green!15] (s67) {$+$};
+\node[below=0.7cm of $(s01)!0.5!(s23)$,fill=yellow!20] (s03) {$+$};
+\node[below=0.7cm of $(s45)!0.5!(s67)$,fill=yellow!20] (s47) {$+$};
+\node[below=0.7cm of $(s03)!0.5!(s47)$,fill=red!15] (total) {$\sum$};
+\draw[arr] (a0)--(s01); \draw[arr] (a1)--(s01);
+\draw[arr] (a2)--(s23); \draw[arr] (a3)--(s23);
+\draw[arr] (a4)--(s45); \draw[arr] (a5)--(s45);
+\draw[arr] (a6)--(s67); \draw[arr] (a7)--(s67);
+\draw[arr] (s01)--(s03); \draw[arr] (s23)--(s03);
+\draw[arr] (s45)--(s47); \draw[arr] (s67)--(s47);
+\draw[arr] (s03)--(total); \draw[arr] (s47)--(total);
+\end{tikzpicture}
+\caption{DAG Parallel Reduction cho Dot Product (minh họa 8 phần tử)}
+\end{figure}
+
+%========================================
+\section{Kết quả thực nghiệm}
+%========================================
+
+\subsection{CUDA (Google Colab -- Tesla T4)}
+
+\begin{tcolorbox}[title=Dot Product (N = 1{,}000{,}000),colback=black!5]
+\ttfamily\small
+{[CPU Sequential]}\ \ Result: 244219.001864\ \ Time: 2.9270 ms\\
+{[GPU CUDA]}\ \ \ \ \ \ \ \ Result: 244219.001864\ \ Time: 0.3111 ms\\
+Difference: 0.0000000153\ \ Correct: Yes\ \ Speedup: 9.41x
+\end{tcolorbox}
+
+\begin{tcolorbox}[title=Matrix Transpose (1024 $\times$ 2048),colback=black!5]
+\ttfamily\small
+{[CPU Sequential]}\ \ \ \ Time: 40.5120 ms\\
+{[GPU Naive]}\ \ \ \ \ \ \ \ \ Time: 0.4028 ms\ \ Correct: Yes\\
+{[GPU Shared Memory]} Time: 0.0951 ms\ \ Correct: Yes\\
+CPU/Naive: 100.58x\ \ CPU/Shared: 426.12x\ \ Naive/Shared: 4.24x
+\end{tcolorbox}
+
+\subsection{C\# (.NET -- Windows)}
+
+\begin{tcolorbox}[title=Dot Product (N = 1{,}000{,}000),colback=black!5]
+\ttfamily\small
+{[Sequential]}\ \ \ Result: 245005.259600\ \ Time: 1.8965 ms\\
+{[Thread/Task]}\ \ Result: 245005.259600\ \ Time: 5.8638 ms\ \ Correct: Yes\\
+{[Channel]}\ \ \ \ \ \ Result: 245005.259600\ \ Time: 13.9731 ms\ \ Correct: Yes\\
+Speedup -- Seq/Task: 0.32x\ \ Seq/Channel: 0.14x
+\end{tcolorbox}
+
+\begin{tcolorbox}[title=Matrix Transpose (1024 $\times$ 2048),colback=black!5]
+\ttfamily\small
+{[Sequential]}\ \ \ Time: 103.1786 ms\\
+{[Thread/Task]}\ \ Time: 42.1967 ms\ \ Correct: Yes\\
+{[Channel]}\ \ \ \ \ \ Time: 50.9228 ms\ \ Correct: Yes\\
+Speedup -- Seq/Task: 2.45x\ \ Seq/Channel: 2.03x
+\end{tcolorbox}
+
+%========================================
+\section{Bảng so sánh tổng hợp}
+%========================================
+
+\begin{table}[H]
+\centering
+\caption{So sánh hiệu năng tất cả phương pháp}
+\begin{tabular}{llrrr}
+\toprule
+\textbf{Bài toán} & \textbf{Phương pháp} & \textbf{Thời gian (ms)} & \textbf{Speedup} & \textbf{Correct} \\
+\midrule
+\multirow{2}{*}{Dot Product} 
+  & CUDA -- CPU Sequential  & 2.9270  & 1.00x & -- \\
+  & CUDA -- GPU Reduction   & 0.3111  & 9.41x & Yes \\
+  & C\# Sequential          & 1.8965  & 1.00x & -- \\
+  & C\# Thread/Task         & 5.8638  & 0.32x & Yes \\
+  & C\# Channel             & 13.9731 & 0.14x & Yes \\
+\midrule
+\multirow{2}{*}{Transpose}
+  & CUDA -- CPU Sequential  & 40.5120 & 1.00x & -- \\
+  & CUDA -- GPU Naive       & 0.4028  & 100.58x & Yes \\
+  & CUDA -- GPU Shared Mem  & 0.0951  & 426.12x & Yes \\
+  & C\# Sequential          & 103.1786 & 1.00x & -- \\
+  & C\# Thread/Task         & 42.1967  & 2.45x & Yes \\
+  & C\# Channel             & 50.9228  & 2.03x & Yes \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+%========================================
+\section{Khó khăn \& Giải pháp}
+%========================================
+
+\begin{table}[H]
+\centering
+\begin{tabular}{p{3.2cm}p{4cm}p{4.5cm}}
+\toprule
+\textbf{Vấn đề} & \textbf{Nguyên nhân} & \textbf{Giải pháp} \\
+\midrule
+C\# Dot Product: Task/Channel chậm hơn seq. & Overhead tạo Task \& Channel lớn hơn thời gian tính toán (N nhỏ) & Song song hóa chỉ hiệu quả khi N lớn hoặc compute-intensive \\
+\midrule
+Bank conflicts (shared memory) & Truy cập cùng bank khi chuyển vị & Padding: \texttt{TILE\_DIM+1} \\
+\midrule
+Uncoalesced writes (naive transpose) & Ghi theo cột, stride lớn & Shared memory tiling (speedup 4.24x so với naive) \\
+\midrule
+Floating-point precision & Thứ tự cộng dồn khác nhau CPU/GPU & Dùng \texttt{double}, chấp nhận sai số $< 10^{-2}$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+%========================================
+\section{Kết luận}
+%========================================
+
+Qua thực nghiệm trên hai bài toán Dot Product và Matrix Transpose, có thể rút ra các nhận xét sau:
+
+\begin{itemize}
+    \item \textbf{CUDA vượt trội rõ rệt:} Dot Product đạt speedup 9.41x, Matrix Transpose đạt 426.12x (shared memory) so với CPU sequential. Massive parallelism trên GPU phù hợp cho cả bài toán compute-bound và memory-bound.
+    \item \textbf{Shared memory là kỹ thuật tối ưu quan trọng:} Transpose với shared memory nhanh hơn naive 4.24x nhờ coalesced access và tránh bank conflicts bằng padding.
+    \item \textbf{C\# Task/Channel phụ thuộc vào kích thước bài toán:} Với Dot Product ($N = 10^6$ phép đơn giản), overhead tạo Task/Channel lấn át. Nhưng với Transpose ($2 \times 10^6$ phần tử, memory-intensive), Thread/Task đạt 2.45x speedup.
+    \item \textbf{Lựa chọn kỹ thuật song song cần cân nhắc:} Channel phù hợp cho kiến trúc producer-consumer phức tạp, Thread/Task phù hợp cho chia dữ liệu đơn giản, CUDA phù hợp khi cần hiệu năng tối đa.
+\end{itemize}
+
+\end{document}
