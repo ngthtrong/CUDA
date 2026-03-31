@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("CSharpParallel")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+0eccdfc4a372b2aaf492643cef6e9680fb5d7114")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+a92175bd385820fd02a6dd3f1187b925e31309a6")]
 [assembly: System.Reflection.AssemblyProductAttribute("CSharpParallel")]
 [assembly: System.Reflection.AssemblyTitleAttribute("CSharpParallel")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
