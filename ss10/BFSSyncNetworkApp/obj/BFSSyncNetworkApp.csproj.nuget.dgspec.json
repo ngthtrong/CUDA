@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\jhiny\\Desktop\\CUDA\\ss10\\BFSSyncNetworkApp\\BFSSyncNetworkApp.csproj": {}
+    "C:\\Users\\jhiny\\Desktop\\cuda\\ss10\\BFSSyncNetworkApp\\BFSSyncNetworkApp.csproj": {}
   },
   "projects": {
-    "C:\\Users\\jhiny\\Desktop\\CUDA\\ss10\\BFSSyncNetworkApp\\BFSSyncNetworkApp.csproj": {
+    "C:\\Users\\jhiny\\Desktop\\cuda\\ss10\\BFSSyncNetworkApp\\BFSSyncNetworkApp.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\jhiny\\Desktop\\CUDA\\ss10\\BFSSyncNetworkApp\\BFSSyncNetworkApp.csproj",
+        "projectUniqueName": "C:\\Users\\jhiny\\Desktop\\cuda\\ss10\\BFSSyncNetworkApp\\BFSSyncNetworkApp.csproj",
         "projectName": "BFSSyncNetworkApp",
-        "projectPath": "C:\\Users\\jhiny\\Desktop\\CUDA\\ss10\\BFSSyncNetworkApp\\BFSSyncNetworkApp.csproj",
+        "projectPath": "C:\\Users\\jhiny\\Desktop\\cuda\\ss10\\BFSSyncNetworkApp\\BFSSyncNetworkApp.csproj",
         "packagesPath": "C:\\Users\\jhiny\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\jhiny\\Desktop\\CUDA\\ss10\\BFSSyncNetworkApp\\obj\\",
+        "outputPath": "C:\\Users\\jhiny\\Desktop\\cuda\\ss10\\BFSSyncNetworkApp\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

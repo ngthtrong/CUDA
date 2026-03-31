@@ -12,3 +12,4 @@ C:\Users\jhiny\Desktop\CUDA\ss10\BFSSyncNetworkApp\obj\Release\net9.0-windows\re
 C:\Users\jhiny\Desktop\CUDA\ss10\BFSSyncNetworkApp\obj\Release\net9.0-windows\BFSSyncNetworkApp.pdb
 C:\Users\jhiny\Desktop\CUDA\ss10\BFSSyncNetworkApp\obj\Release\net9.0-windows\BFSSyncNetworkApp.genruntimeconfig.cache
 C:\Users\jhiny\Desktop\CUDA\ss10\BFSSyncNetworkApp\obj\Release\net9.0-windows\ref\BFSSyncNetworkApp.dll
+C:\Users\jhiny\Desktop\CUDA\ss10\BFSSyncNetworkApp\obj\Release\net9.0-windows\BFSSyncNetworkApp.sourcelink.json

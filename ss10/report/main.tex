@@ -39,10 +39,10 @@
 }
 \lstset{style=mystyle}
 
-\title{\textbf{BÁO CÁO SESSION 10\\BREADTH-FIRST SEARCH TRONG SYNCHRONOUS NETWORK}}
+\title{\textbf{BÁO CÁO SESSION 10\\BFS TRONG SYNCHRONOUS NETWORK:\\SO SÁNH 4 CÁCH TRIỂN KHAI}}
 \author{
-  \textbf{Môn học:} Lập trình song song với CUDA\\
-  \textbf{Nội dung:} BFS đồng bộ trên đồ thị vô hướng với CPU baseline và GPU CUDA
+    \textbf{Môn học:} Lập trình song song với CUDA\\
+    \textbf{Triển khai:} Thread/Task, Parallel.For, Channel, CUDA
 }
 \date{\today}
 
@@ -54,85 +54,83 @@
 
 \section{Giới thiệu}
 
-\subsection{Bài toán}
-Trong mô hình \textit{synchronous network}, thuật toán chạy theo các vòng (round) rời rạc.
-Ở mỗi round, một tiến trình (đỉnh) có thể:
+\subsection{Cơ sở từ bài giảng}
+Theo tài liệu \textit{Breadth-First Search in Synchronous Networks}, đồ thị vô hướng
+$G=(V,E)$ được xem như một mạng tiến trình, trong đó:
 \begin{itemize}
-    \item Gửi thông điệp thăm dò tới các đỉnh lân cận.
-    \item Nhận thông điệp từ hàng xóm.
-    \item Cập nhật trạng thái cục bộ (đã thăm/chưa thăm, mức BFS, cha trong cây BFS).
+    \item Mỗi đỉnh là một process.
+    \item Mỗi cạnh vô hướng tương ứng hai kênh có hướng.
+    \item Thuật toán thực thi theo các round đồng bộ.
 \end{itemize}
 
-Bài toán BFS synchronous bắt đầu từ một đỉnh \texttt{start}, sau đó mở rộng theo từng lớp mức
-(level) giống duyệt BFS cổ điển, nhưng nhấn mạnh khái niệm đồng bộ theo round.
+Ở mỗi round, process thực hiện chuỗi thao tác: giữ trạng thái cục bộ, gửi message,
+nhận message, tính trạng thái mới. Hai độ đo chính của mô hình là:
+\begin{itemize}
+    \item \textbf{Time}: số round đồng bộ.
+    \item \textbf{Communication}: số message trao đổi.
+\end{itemize}
 
-\subsection{Mục tiêu thực hiện}
+Với bài toán \texttt{BFS(start)}, đỉnh nguồn được đánh dấu trước,
+các đỉnh mới được khám phá sẽ gửi tiếp ở round kế tiếp.
+
+\subsection{Yêu cầu triển khai}
+Theo file hướng dẫn implement, bài toán được hiện thực theo 4 cách:
 \begin{enumerate}
-    \item Xây dựng chương trình BFS synchronous trên CPU (baseline).
-    \item Xây dựng phiên bản GPU CUDA theo cơ chế frontier từng round.
-    \item So sánh về:
-    \begin{itemize}
-        \item Thời gian thực thi.
-        \item Số round giao tiếp.
-        \item Tổng số thông điệp gửi trên cạnh có hướng.
-        \item Độ đúng kết quả (mảng \texttt{level} CPU vs GPU).
-    \end{itemize}
-    \item Đóng gói quy trình chạy trong notebook Colab theo phong cách:
-    \texttt{\%\%writefile} $\rightarrow$ \texttt{nvcc} $\rightarrow$ chạy chương trình.
+    \item Thread/Task
+    \item Parallel.For
+    \item Channel
+    \item CUDA
 \end{enumerate}
+
+Ngoài số round và số message, kết quả còn theo dõi thêm mức BFS, parent của từng đỉnh,
+và thời gian thực thi để so sánh các phương án.
 
 \section{Thiết kế dữ liệu và mô hình}
 
 \subsection{Đầu vào JSON}
-Đồ thị được nhập từ file JSON với định dạng:
+Đồ thị được nhập từ JSON dưới dạng danh sách cạnh (hoặc adjacency trong .NET app):
 \begin{lstlisting}[language={}, caption={Định dạng JSON đầu vào}]
 {
-  "nodes": [0, 1, 2, 3, 4],
-  "edges": [[0,1], [0,2], [1,3], [2,4]]
+  "nodes": [0, 1, 2, 3, 4, 5, 6, 7, 8],
+  "edges": [
+    [0, 1], [0, 2], [1, 3], [2, 3],
+    [2, 4], [4, 5], [5, 6], [3, 7], [7, 8]
+  ]
 }
 \end{lstlisting}
 
 Trong đó:
 \begin{itemize}
-    \item \texttt{nodes}: danh sách id đỉnh (có thể suy ra từ \texttt{edges}).
+    \item \texttt{nodes}: danh sách id đỉnh (có thể suy ra từ \texttt{edges} nếu thiếu).
     \item \texttt{edges}: danh sách cạnh vô hướng \texttt{[u,v]}.
 \end{itemize}
 
-\subsection{Biểu diễn đồ thị trên GPU}
-Đồ thị được chuyển sang định dạng CSR (Compressed Sparse Row):
+\subsection{Mô hình trong ứng dụng .NET}
+Ứng dụng \texttt{BFSSyncNetworkApp} dùng danh sách kề trong lớp \texttt{Graph}.
+Kết quả BFS được chuẩn hoá bằng \texttt{BfsResult}, gồm:
+\begin{itemize}
+    \item \texttt{DiscoveryDepth}, \texttt{CommunicationRounds}, \texttt{MessageCount}
+    \item \texttt{LevelByNode}, \texttt{ParentByNode}
+    \item \texttt{VisitOrder} và \texttt{Rounds} (trace theo round)
+\end{itemize}
+
+\subsection{Mô hình trong CUDA}
+Mã \texttt{bfs\_sync\_cuda.cu} chuyển đồ thị sang CSR:
 \begin{itemize}
     \item \texttt{rowPtr}: mảng offset kích thước $n+1$.
     \item \texttt{colIdx}: danh sách đỉnh kề liên tục.
 \end{itemize}
 
-Ưu điểm của CSR:
-\begin{itemize}
-    \item Truy cập hàng xóm của mỗi đỉnh nhanh.
-    \item Gọn bộ nhớ hơn ma trận kề với đồ thị thưa.
-    \item Phù hợp với kernel dạng duyệt danh sách kề.
-\end{itemize}
+CSR phù hợp cho kernel duyệt hàng xóm trên GPU và tiết kiệm bộ nhớ trên đồ thị thưa.
 
 \section{Thuật toán BFS synchronous}
 
-\subsection{CPU baseline}
-Tại mỗi round:
-\begin{enumerate}
-    \item Duyệt toàn bộ đỉnh thuộc \texttt{frontier} hiện tại.
-    \item Gửi thông điệp đến các hàng xóm.
-    \item Nếu hàng xóm chưa thăm và chưa được lên lịch trong round này thì:
-    \begin{itemize}
-        \item Ghi \texttt{level = currentLevel + 1}
-        \item Ghi \texttt{parent}
-        \item Đưa vào \texttt{nextFrontier}
-    \end{itemize}
-\end{enumerate}
-
-\subsection{GPU CUDA}
-Mỗi thread xử lý một đỉnh \texttt{u}. Nếu \texttt{u} nằm trong frontier thì thread duyệt danh sách kề:
+\subsection{Quy tắc round-based}
+Ở round $j$:
 \begin{itemize}
-    \item Tăng bộ đếm thông điệp bằng \texttt{atomicAdd(messageCount, 1)}.
-    \item Dùng \texttt{atomicCAS} trên \texttt{visited[v]} để đảm bảo chỉ thread đầu tiên đánh dấu đỉnh \texttt{v}.
-    \item Thread thắng quyền đánh dấu sẽ cập nhật \texttt{parent[v]}, \texttt{level[v]} và bật cờ \texttt{nextFrontier[v]}.
+    \item Các đỉnh trong \texttt{frontier} gửi thông điệp thăm dò đến láng giềng.
+    \item Đỉnh chưa đánh dấu, nếu nhận được thông điệp, sẽ được đánh dấu mức $j+1$.
+    \item Đỉnh mới đánh dấu được đưa vào \texttt{nextFrontier}.
 \end{itemize}
 
 \subsection{Pseudo-code}
@@ -156,74 +154,156 @@ while frontier not empty:
     round += 1
 \end{lstlisting}
 
-\section{Notebook triển khai}
-File notebook được tạo tại:
-\begin{center}
-\texttt{ss10/bfs\_sync\_cuda.ipynb}
-\end{center}
+\section{Mô tả 4 cách triển khai}
 
-Notebook gồm các phần chính:
-\begin{enumerate}
-    \item Kiểm tra GPU bằng \texttt{nvidia-smi}.
-    \item Tạo \texttt{graph\_sample.json}.
-    \item Tạo mã nguồn \texttt{bfs\_sync\_cuda.cu} bằng \texttt{\%\%writefile}.
-    \item Biên dịch bằng:
-    \begin{lstlisting}[language=bash]
-!nvcc -O2 -o bfs_sync_cuda bfs_sync_cuda.cu -arch=sm_75
-    \end{lstlisting}
-    \item Chạy chương trình:
-    \begin{lstlisting}[language=bash]
-!./bfs_sync_cuda graph_sample.json 0
-    \end{lstlisting}
-    \item Chạy benchmark nhanh với nhiều \texttt{start node}.
-\end{enumerate}
+\subsection{Thread/Task (.NET)}
+Mỗi sender trong frontier được gán cho một \texttt{Task}. Kết quả khám phá của cả round
+được gom bằng \texttt{ConcurrentDictionary}. Bộ đếm message dùng \texttt{Interlocked.Add}.
+
+Ưu điểm: trực quan, dễ mapping theo ``một sender -- một đơn vị công việc''.
+Hạn chế: tạo nhiều task nhỏ có thể tăng overhead scheduling.
+
+\subsection{Parallel.For (.NET)}
+Sử dụng \texttt{Parallel.For} trên chỉ số frontier, vẫn dùng cấu trúc concurrent để hợp nhất kết quả.
+
+Ưu điểm: tận dụng ThreadPool tốt cho vòng lặp dữ liệu song song.
+Hạn chế: ít linh hoạt hơn khi cần pipeline message phức tạp.
+
+\subsection{Channel (.NET)}
+Dùng mô hình producer-consumer với \texttt{System.Threading.Channels}:
+\begin{itemize}
+    \item Producer phát sinh \texttt{ProbeMessage(sender, target)}.
+    \item Nhiều consumer đọc channel và hợp nhất kết quả khám phá.
+\end{itemize}
+
+Ưu điểm: mô hình gần với thông điệp trong synchronous network.
+Hạn chế: chi phí enqueue/dequeue khiến chậm hơn khi đồ thị nhỏ.
+
+\subsection{CUDA}
+Mỗi thread xử lý một đỉnh thuộc frontier theo CSR:
+\begin{itemize}
+    \item \texttt{atomicAdd} để đếm message.
+    \item \texttt{atomicCAS} để đảm bảo chỉ một thread đánh dấu đỉnh mới.
+    \item Tạo \texttt{nextFrontier} và lặp cho round kế tiếp.
+\end{itemize}
+
+Ưu điểm: mức song song cao khi frontier lớn.
+Hạn chế: với đồ thị nhỏ, overhead kernel launch và đồng bộ host-device khá lớn.
 
 \section{Kết quả và phân tích}
 
-\subsection{Các chỉ số theo dõi}
-Chương trình in ra:
+\subsection{Nguồn số liệu}
+Số liệu được tổng hợp từ hai nguồn:
+\begin{enumerate}
+    \item \textbf{Ứng dụng .NET đã viết}: dùng cùng mã \texttt{GraphParser} và \texttt{SynchronousBfsRunner}
+    để benchmark 3 mode CPU (Thread/Task, Parallel.For, Channel).
+    \item \textbf{Notebook CUDA đã chạy}: lấy kết quả thực nghiệm của \texttt{bfs\_sync\_cuda.cu}.
+\end{enumerate}
+
+\subsection{Kết quả benchmark cho 3 mode .NET}
+Dataset dùng chung: 9 đỉnh, 9 cạnh vô hướng; benchmark trung bình qua 5000 lần chạy mỗi mode.
+
+\begin{table}[H]
+\centering
+\caption{Kết quả .NET: Thread/Task, Parallel.For, Channel}
+\begin{tabular}{>{\centering\arraybackslash}m{1.7cm} >{\centering\arraybackslash}m{2.2cm} >{\centering\arraybackslash}m{2.2cm} >{\centering\arraybackslash}m{2.2cm} >{\centering\arraybackslash}m{1.6cm} >{\centering\arraybackslash}m{1.8cm}}
+\toprule
+\textbf{Start} & \textbf{Thread/Task (ms)} & \textbf{Parallel.For (ms)} & \textbf{Channel (ms)} & \textbf{Rounds} & \textbf{Messages} \\
+\midrule
+0 & 0.052899 & 0.053084 & 0.109321 & 5 & 18 \\
+2 & 0.049278 & 0.040053 & 0.069677 & 4 & 18 \\
+4 & 0.038992 & 0.025813 & 0.043481 & 5 & 18 \\
+\midrule
+\textbf{Avg} & \textbf{0.047056} & \textbf{0.039650} & \textbf{0.074160} & - & - \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Kiểm tra độ đúng trên cả ba điểm bắt đầu cho thấy \texttt{LevelByNode} giống nhau giữa 3 mode .NET.
+
+\subsection{Kết quả benchmark CUDA từ notebook}
+Môi trường GPU trong notebook:
 \begin{itemize}
-    \item \texttt{time(ms)} của CPU và GPU.
-    \item \texttt{communication rounds}.
-    \item \texttt{messages} (số lần duyệt cạnh có hướng).
-    \item Bảng \texttt{node\_id, cpu\_level, gpu\_level, gpu\_parent}.
-    \item Round trace của GPU.
+    \item GPU: \texttt{Tesla T4}
+    \item Driver: \texttt{580.82.07}
+    \item CUDA runtime hiển thị bởi \texttt{nvidia-smi}: \texttt{13.0}
 \end{itemize}
 
-\subsection{Nhận xét tổng quan}
+\begin{table}[H]
+\centering
+\caption{Kết quả CUDA trong notebook (CPU baseline trong chương trình C++)}
+\begin{tabular}{>{\centering\arraybackslash}m{1.6cm} >{\centering\arraybackslash}m{2.3cm} >{\centering\arraybackslash}m{2.3cm} >{\centering\arraybackslash}m{1.6cm} >{\centering\arraybackslash}m{1.9cm} >{\centering\arraybackslash}m{2.0cm} >{\centering\arraybackslash}m{1.8cm}}
+\toprule
+\textbf{Start} & \textbf{CPU (ms)} & \textbf{GPU (ms)} & \textbf{Rounds} & \textbf{Messages} & \textbf{Level match} & \textbf{Speedup} \\
+\midrule
+0 & 0.0017 & 0.3138 & 5 & 18 & Yes & 0.0053x \\
+2 & 0.0021 & 0.3076 & 4 & 18 & Yes & 0.0067x \\
+4 & 0.0022 & 0.2815 & 5 & 18 & Yes & 0.0080x \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{So sánh tổng hợp 4 cách triển khai}
+\begin{table}[H]
+\centering
+\caption{So sánh 4 cách triển khai BFS synchronous}
+\begin{tabular}{>{\centering\arraybackslash}m{2.2cm} >{\centering\arraybackslash}m{3.5cm} >{\centering\arraybackslash}m{2.2cm} >{\centering\arraybackslash}m{2.4cm} >{\centering\arraybackslash}m{3.2cm}}
+\toprule
+\textbf{Cách} & \textbf{Mô hình song song} & \textbf{Avg time (ms)} & \textbf{Độ đúng level} & \textbf{Ghi chú} \\
+\midrule
+Thread/Task & Nhiều task theo sender frontier & 0.047056 & Khớp với .NET mode khác & Dễ hiểu, overhead task tăng khi workload nhỏ \\
+Parallel.For & Song song vòng lặp trên ThreadPool & 0.039650 & Khớp với .NET mode khác & Nhanh nhất trong 3 mode .NET ở dataset này \\
+Channel & Producer-consumer theo thông điệp & 0.074160 & Khớp với .NET mode khác & Gần mô hình message-passing nhưng tốn overhead queue \\
+CUDA & Kernel frontier trên GPU CSR & 0.300967 (GPU) & Khớp CPU baseline C++ & Tiềm năng tốt khi đồ thị lớn, frontier rộng \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Phân tích kết quả}
 \begin{itemize}
-    \item Với đồ thị nhỏ, thời gian GPU có thể chưa vượt trội do overhead launch kernel và sao chép dữ liệu.
-    \item Với đồ thị lớn và frontier rộng, GPU có lợi thế nhờ xử lý song song số lượng lớn cạnh trong mỗi round.
-    \item Việc dùng \texttt{atomicCAS} giúp đảm bảo đúng tính chất BFS theo lớp khi nhiều thread tranh chấp cùng một đỉnh chưa thăm.
+    \item Cả 4 cách triển khai đều bảo toàn ngữ nghĩa BFS theo round: cùng \texttt{rounds/messages} trên cùng điểm bắt đầu, và cùng phân bố level.
+    \item Với dataset nhỏ, \texttt{Parallel.For} cho thời gian trung bình tốt nhất trong 3 mode .NET.
+    \item Channel đúng về mặt mô hình thông điệp nhưng có overhead enqueue/dequeue, do đó chậm hơn ở đồ thị nhỏ.
+    \item CUDA trong notebook vẫn đúng kết quả nhưng chưa có lợi về thời gian ở bài toán nhỏ vì overhead launch kernel và đồng bộ host-device.
+    \item So sánh thời gian tuyệt đối giữa .NET local và CUDA notebook chỉ mang tính tham khảo vì khác môi trường phần cứng/phần mềm.
 \end{itemize}
 
 \section{Hạn chế và hướng cải tiến}
 
 \subsection{Hạn chế hiện tại}
 \begin{itemize}
-    \item Parser JSON trong mã CUDA dùng regex đơn giản, phù hợp cho dữ liệu có cấu trúc chuẩn.
-    \item Mỗi round có đồng bộ host-device để lấy \texttt{nextFrontier} và đếm số đỉnh mới.
-    \item Chưa tối ưu cho đồ thị rất lớn bằng các kỹ thuật nén frontier nâng cao.
+    \item Số liệu hiện tại dùng đồ thị nhỏ minh họa, chưa phản ánh đầy đủ lợi thế GPU.
+    \item Kết quả .NET và CUDA được lấy từ hai môi trường khác nhau, chưa phải benchmark đồng nhất phần cứng.
+    \item Parser JSON trong CUDA dùng regex, phù hợp dữ liệu chuẩn nhưng chưa tối ưu cho input lớn.
+    \item CUDA hiện đồng bộ host-device ở mỗi round để lấy frontier mới.
 \end{itemize}
 
 \subsection{Hướng mở rộng}
 \begin{enumerate}
-    \item Dùng định dạng input binary/CSR trực tiếp để giảm chi phí parse.
-    \item Tối ưu frontier bằng bitset và kỹ thuật \textit{direction-optimizing BFS}.
-    \item Dùng nhiều benchmark dataset (road network, social network) để đánh giá toàn diện.
-    \item Kết nối kết quả CUDA với ứng dụng .NET UI để so sánh 4 chế độ: Thread/Task, Parallel.For, Channel, CUDA.
+    \item Tạo bộ benchmark thống nhất (cùng máy, cùng dataset lớn) cho cả .NET và CUDA.
+    \item Bổ sung đồ thị thực tế (social/road/web graphs) với nhiều mật độ cạnh khác nhau.
+    \item Tối ưu CUDA bằng frontier nén (bitset) hoặc hướng \textit{direction-optimizing BFS}.
+    \item Bổ sung mode asynchronous hoặc hybrid CPU-GPU để đánh giá thêm theo mô hình mạng phân tán.
 \end{enumerate}
 
 \section{Kết luận}
-Báo cáo đã trình bày cách hiện thực BFS trong synchronous network bằng CUDA, với quy trình chạy rõ ràng trên notebook.
-Cấu trúc triển khai bám sát mô hình round-based của bài giảng, đồng thời có đối chiếu CPU để xác thực.
-Kết quả cho thấy phương pháp GPU có tiềm năng tăng tốc khi kích thước đồ thị đủ lớn và mức song song cao.
+Báo cáo đã được tổ chức lại theo đúng tinh thần bài giảng và yêu cầu implement:
+so sánh 4 cách hiện thực BFS synchronous gồm Thread/Task, Parallel.For, Channel và CUDA.
+
+Kết quả thực nghiệm cho thấy các cách triển khai đều đúng về mặt thuật toán.
+Ở dataset nhỏ, Parallel.For đang là lựa chọn CPU hiệu quả nhất trong ứng dụng .NET,
+trong khi CUDA chưa phát huy lợi thế do overhead cố hữu trên bài toán nhỏ.
+
+Khi mở rộng sang đồ thị lớn và benchmark đồng nhất môi trường,
+CUDA được kỳ vọng thể hiện ưu thế rõ hơn về khả năng mở rộng song song.
 
 \section{Tài liệu tham khảo}
 \begin{enumerate}
     \item NVIDIA Corporation, \textit{CUDA C++ Programming Guide}.
-    \item Mark Harris, \textit{Optimizing Parallel Reduction in CUDA}.
     \item Tài liệu bài giảng: \textit{Breadth-First Search in Synchronous Networks}.
+    \item Tài liệu yêu cầu triển khai: \texttt{ss10/implemantGuide.md}.
+    \item Mã nguồn ứng dụng .NET: \texttt{ss10/BFSSyncNetworkApp}.
+    \item Notebook thực nghiệm CUDA: \texttt{ss10/bfs\_sync\_cuda.ipynb}.
 \end{enumerate}
 
 \end{document}
