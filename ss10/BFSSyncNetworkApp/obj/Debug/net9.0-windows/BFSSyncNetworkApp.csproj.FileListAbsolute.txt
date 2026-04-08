@@ -1,0 +1,15 @@
+C:\Users\jhiny\Desktop\CUDA\ss10\BFSSyncNetworkApp\bin\Debug\net9.0-windows\BFSSyncNetworkApp.exe
+C:\Users\jhiny\Desktop\CUDA\ss10\BFSSyncNetworkApp\bin\Debug\net9.0-windows\BFSSyncNetworkApp.deps.json
+C:\Users\jhiny\Desktop\CUDA\ss10\BFSSyncNetworkApp\bin\Debug\net9.0-windows\BFSSyncNetworkApp.runtimeconfig.json
+C:\Users\jhiny\Desktop\CUDA\ss10\BFSSyncNetworkApp\bin\Debug\net9.0-windows\BFSSyncNetworkApp.dll
+C:\Users\jhiny\Desktop\CUDA\ss10\BFSSyncNetworkApp\bin\Debug\net9.0-windows\BFSSyncNetworkApp.pdb
+C:\Users\jhiny\Desktop\CUDA\ss10\BFSSyncNetworkApp\obj\Debug\net9.0-windows\BFSSyncNetworkApp.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\jhiny\Desktop\CUDA\ss10\BFSSyncNetworkApp\obj\Debug\net9.0-windows\BFSSyncNetworkApp.AssemblyInfoInputs.cache
+C:\Users\jhiny\Desktop\CUDA\ss10\BFSSyncNetworkApp\obj\Debug\net9.0-windows\BFSSyncNetworkApp.AssemblyInfo.cs
+C:\Users\jhiny\Desktop\CUDA\ss10\BFSSyncNetworkApp\obj\Debug\net9.0-windows\BFSSyncNetworkApp.csproj.CoreCompileInputs.cache
+C:\Users\jhiny\Desktop\CUDA\ss10\BFSSyncNetworkApp\obj\Debug\net9.0-windows\BFSSyncNetworkApp.sourcelink.json
+C:\Users\jhiny\Desktop\CUDA\ss10\BFSSyncNetworkApp\obj\Debug\net9.0-windows\BFSSyncNetworkApp.dll
+C:\Users\jhiny\Desktop\CUDA\ss10\BFSSyncNetworkApp\obj\Debug\net9.0-windows\refint\BFSSyncNetworkApp.dll
+C:\Users\jhiny\Desktop\CUDA\ss10\BFSSyncNetworkApp\obj\Debug\net9.0-windows\BFSSyncNetworkApp.pdb
+C:\Users\jhiny\Desktop\CUDA\ss10\BFSSyncNetworkApp\obj\Debug\net9.0-windows\BFSSyncNetworkApp.genruntimeconfig.cache
+C:\Users\jhiny\Desktop\CUDA\ss10\BFSSyncNetworkApp\obj\Debug\net9.0-windows\ref\BFSSyncNetworkApp.dll
